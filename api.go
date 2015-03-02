@@ -1,78 +1,90 @@
 package nationbuilder
 
-import "errors"
-
-const apiVersion = "v1"
-
-var (
-	errNoResponse = errors.New("No response from nationbuilder")
+import (
+	"fmt"
+	"net/http"
+	"net/url"
+	"strconv"
 )
 
-// func (a Api) CreateBlogPosts(site string, blogID string, posts ...*BlogPost) ([]*BlogPostResult, error) {
-// 	requests := make([]*apiRequest, 0)
-// 	u := a.getBaseURL()
-// 	u.Path += "/" + site + "/pages/blogs/" + blogID + "/posts"
+const apiVersion = "v1"
+const debug = true
+const defaultLimit = 50
 
-// 	for _, p := range posts {
-// 		bpc := &BlogPostContainer{p}
-// 		body, err := bpc.AsJSON()
-// 		if err != nil {
-// 			return nil, err
-// 		}
-// 		requests = append(requests, &apiRequest{u.String(), body, "POST"})
-// 	}
+type nationbuilderURL struct {
+	u url.URL
+}
 
-// 	results := processRequests(requests...)
-// 	if len(results) == 0 {
-// 		return nil, errNoResponse
-// 	}
+func (n *nationbuilderURL) setQuery(key string, val string) {
+	q := n.u.Query()
+	q.Set(key, val)
+	n.u.RawQuery = q.Encode()
+}
 
-// 	blogPosts := make([]*BlogPostResult, 0)
-// 	for _, r := range results {
-// 		if r.err != nil {
-// 			return nil, r.err
-// 		}
-// 		if r.statusCode != http.StatusOK {
-// 			apiErr := &ApiError{}
-// 			err := json.Unmarshal(r.body, apiErr)
-// 			if err != nil {
-// 				return nil, err
-// 			}
-// 			log.Printf("Nationbuilder Error\nCode: %s\tMessage: %s\nHTTP Statuscode: %d\n", apiErr.Code, apiErr.Message, r.statusCode)
-// 			return nil, errors.New("Nationbuilder Error encountered when creating blog post")
-// 		}
-// 		post, err := NewBlogPostResultFromJSON(r.body)
-// 		if err != nil {
-// 			return nil, err
-// 		}
-// 		blogPosts = append(blogPosts, post)
-// 	}
+func (n *nationbuilderURL) setLimit(limit int) {
+	n.setQuery("limit", strconv.Itoa(limit))
+}
 
-// 	return blogPosts, nil
+func (n *nationbuilderURL) setToken(token string) {
+	n.setQuery("access_token", token)
+}
 
-// }
+func (n *nationbuilderURL) extendPath(path string) {
+	if len(path) > 0 {
+		if string(path[0]) != "/" {
+			n.u.Path += "/"
+		}
 
-// func (a Api) CreateBlog(blog BlogPage) {
+		n.u.Path += path
+	}
+}
 
-// }
+func (n *nationbuilderURL) String() string {
+	return n.u.String()
+}
 
-// func (a Api) GetBlogs(site string) (*BlogResult, error) {
-// 	u := a.baseUrl
-// 	u.Path += "/" + site + "/pages/blogs"
+type NationbuilderClient struct {
+	Slug    string
+	ApiKey  string
+	baseURL *nationbuilderURL
+	c       *http.Client
+}
 
-// 	results := processRequests(&apiRequest{
-// 		method: "GET",
-// 		url:    u.String(),
-// 	})
-// 	if len(results) == 0 {
-// 		return nil, errNoResponse
-// 	}
+func (n *NationbuilderClient) getRequest(method string, path string, options *Options) *apiRequest {
+	b := *n.baseURL
+	b.u.Path += path
 
-// 	r := results[0]
-// 	if r.err != nil {
-// 		return nil, r.err
-// 	}
+	if options != nil {
+		options.setQuery(&b.u)
+	}
 
-// 	return NewBlogResultFromJSON(r.body)
+	return &apiRequest{
+		url:    b.String(),
+		method: method,
+	}
 
-// }
+}
+
+func (n *NationbuilderClient) SetClient(c *http.Client) {
+	n.c = c
+}
+
+func NewNationbuilderClient(slug string, key string) (*NationbuilderClient, error) {
+	u, err := url.Parse(fmt.Sprintf("https://%s.nationbuilder.com/api/%s", slug, apiVersion))
+	if err != nil {
+		return nil, err
+	}
+
+	nbURL := &nationbuilderURL{
+		u: *u,
+	}
+
+	nbURL.setToken(key)
+
+	return &NationbuilderClient{
+		Slug:    slug,
+		ApiKey:  key,
+		baseURL: nbURL,
+		c:       &http.Client{},
+	}, nil
+}

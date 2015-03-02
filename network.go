@@ -3,11 +3,11 @@ package nationbuilder
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"sync"
-	"time"
+	"strings"
 )
 
 const (
@@ -15,172 +15,225 @@ const (
 	rateLimit = 10
 )
 
-var (
-	c = new(http.Client)
-)
-
 // Result provides details of an API request
 // Implements type Error
-type result struct {
-	statusCode int
-	err        error
-	body       []byte
-	url        string
+type Result struct {
+	StatusCode int
+	Err        error
+	NationErr  *NationError
+	Body       []byte
+	Etag       string
 }
 
-func (r *result) Error() string {
-	return r.err.Error()
-}
-
-type apiResults []*result
-
-func (a *apiResults) getErrors() (errorCollection, bool) {
-	e := make([]error)
-	errFound := false
-
-	for _, r := range a {
-		if r.err != nil {
-			e = append(e, r.err)
-			errFound = true
+func (r *Result) Error() string {
+	if r.NationErr != nil {
+		var validationErrors string
+		if len(r.NationErr.ValidationError) > 0 {
+			validationErrors = strings.Join(r.NationErr.ValidationError, " - ")
 		}
+		return fmt.Sprintf("StatusCode: %d, Code: %s, Message: %s, ErrorMsg: %s, ValidationErrors: %s",
+			r.StatusCode, r.NationErr.Code, r.NationErr.Message, r.NationErr.ErrorMessage, validationErrors)
+	}
+	return r.Err.Error()
+}
+
+func (r *Result) processResponse(expectedStatus int, dst interface{}) {
+	if r.StatusCode != expectedStatus {
+		err := json.Unmarshal(r.Body, &r.NationErr)
+		if err != nil {
+			r.Err = err
+		}
+
+		return
 	}
 
-	return errorCollection(e), errFound
+	if dst != nil {
+		err := json.Unmarshal(r.Body, dst)
+		if err != nil {
+			r.Err = err
+
+			return
+		}
+	}
+}
+
+func (r *Result) HasError() bool {
+	return r.Err != nil || r.NationErr != nil
+}
+
+type NationError struct {
+	Code            string   `json:"code"`
+	Message         string   `json:"message"`
+	ErrorMessage    string   `json:"error"`
+	ValidationError []string `json:"validation_errors"`
 }
 
 type apiRequest struct {
 	url    string
-	body   []byte
 	method string
+	etag   string
+	body   []byte
 }
 
-// Addresser returns a string URL for a resource
-type addresser interface {
-	GetURL() string
-}
-
-// Creator describes a type capable of being used to
-// create a Nationbuilder resource
-type creator interface {
-	addresser
-	GetBody() ([]byte, error)
-}
-
-func create(creators ...creator) apiResults {
-
-	reqs := make([]*apiRequest)
-	results := make([]*result)
-
-	for _, c := range creators {
-		b, err := c.GetBody()
-		if err != nil {
-			results = append(results, &result{
-				err: err,
-			})
-			continue
-		}
-
-		reqs = append(reqs, &apiRequest{
-			url:    c.GetURL(),
-			method: "POST",
-			body:   b,
-		})
-	}
-
-	r := processRequests(reqs)
-	results = append(results, r)
-
-	return apiResults(results)
-}
-
-func expectStatus(statusCode int, res *result) {
-	// At this point nationbuilder is indicating an error
-	if res.statusCode != statusCode {
-		nbErr := &NationbuilderError{}
-		err := json.Unmarshal(res.body, nbErr)
-		if err != nil {
-			res.err = err
-		} else {
-			res.err = nbErr
-		}
-	}
-}
-
-func retrieve(a addresser) *result {
-	r := &apiRequest{
-		url:    a.GetURL(),
-		method: "GET",
-	}
-
-	res := processRequests(r)[0]
-	if res.err != nil {
+func (n *NationbuilderClient) retrieve(r *apiRequest, dst interface{}) *Result {
+	res := n.sendRequest(r)
+	if res.Err != nil {
 		return res
 	}
 
-	expectStatus(http.StatusOK, res)
+	res.processResponse(http.StatusOK, dst)
 
 	return res
 }
 
-func sendApiCall(apiReq *apiRequest, ticker *time.Ticker, wg *sync.WaitGroup, results chan<- *result) {
-	defer wg.Done()
-
-	req, err := http.NewRequest(apiReq.method, apiReq.url, bytes.NewReader(apiReq.body))
+func (n *NationbuilderClient) create(data interface{}, r *apiRequest, dst interface{}, expectedStatus int) *Result {
+	b, err := json.Marshal(data)
 	if err != nil {
-		log.Fatal(err.Error())
+		return &Result{
+			Err: err,
+		}
+	}
+
+	r.body = b
+
+	res := n.sendRequest(r)
+	if res.Err != nil {
+		return res
+	}
+
+	// NB sometimes returns 200 on object creation and sometimes 201...
+	res.processResponse(expectedStatus, dst)
+
+	return res
+}
+
+func (n *NationbuilderClient) delete(r *apiRequest) *Result {
+	res := n.sendRequest(r)
+	if res.Err != nil {
+		return res
+	}
+
+	res.processResponse(http.StatusNoContent, nil)
+
+	return res
+}
+
+func (n *NationbuilderClient) sendRequest(request *apiRequest) *Result {
+	req, err := http.NewRequest(request.method, request.url, bytes.NewReader(request.body))
+	if err != nil {
+		return &Result{
+			Err: err,
+		}
 	}
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
 
-	<-ticker.C
-
-	r := &result{
-		url: apiReq.url,
+	if request.etag != "" {
+		if debug {
+			log.Println("Set etag of: " + request.etag)
+		}
+		req.Header.Set("If-None-Match", request.etag)
 	}
 
-	resp, err := c.Do(req)
-	if err != nil {
-		r.err = err
-		results <- r
-		return
+	if debug {
+		log.Printf("Making %s request to %s", request.method, request.url)
 	}
 
-	r.statusCode = resp.StatusCode
-
-	r.body, err = ioutil.ReadAll(resp.Body)
+	resp, err := n.c.Do(req)
 	if err != nil {
-		r.err = err
-		results <- r
-		return
+		return &Result{
+			Err: err,
+		}
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return &Result{
+			StatusCode: resp.StatusCode,
+			Err:        err,
+		}
 	}
 	resp.Body.Close()
 
-	results <- r
-}
-
-func processRequests(requests ...*apiRequest) []*result {
-	ticker := time.NewTicker(1e9 / rateLimit)
-	resultChan := make(chan *result)
-	results := make([]*result, 0)
-	wg := new(sync.WaitGroup)
-
-	defer ticker.Stop()
-	wg.Add(len(requests))
-
-	go func() {
-		wg.Wait()
-		close(resultChan)
-	}()
-
-	for _, req := range requests {
-		go sendApiCall(req, ticker, wg, resultChan)
+	if debug {
+		log.Printf("StatusCode %d for %s to %s", resp.StatusCode, request.method, request.url)
 	}
 
-	for r := range resultChan {
-		results = append(results, r)
+	return &Result{
+		StatusCode: resp.StatusCode,
+		Body:       body,
+		Etag:       resp.Header.Get("Etag"),
 	}
-
-	return results
-
 }
+
+// func sendApiCall(apiReq *apiRequest, ticker *time.Ticker, wg *sync.WaitGroup, results chan<- *Result) {
+// 	defer wg.Done()
+
+// 	req, err := http.NewRequest(apiReq.method, apiReq.url, bytes.NewReader(apiReq.body))
+// 	if err != nil {
+// 		log.Fatal(err.Error())
+// 	}
+
+// 	req.Header.Set("Content-Type", "application/json")
+// 	req.Header.Set("Accept", "application/json")
+
+// 	if apiReq.etag != "" {
+// 		if debug {
+// 			log.Println("Set etag of: " + apiReq.etag)
+// 		}
+// 		req.Header.Set("If-None-Match", apiReq.etag)
+// 	}
+
+// 	<-ticker.C
+
+// 	resp, err := c.Do(req)
+// 	if err != nil {
+// 		results <- &Result{
+// 			Err: err,
+// 		}
+// 		return
+// 	}
+
+// 	body, err := ioutil.ReadAll(resp.Body)
+// 	if err != nil {
+// 		results <- &Result{
+// 			Err:        err,
+// 			StatusCode: resp.StatusCode,
+// 		}
+// 		return
+// 	}
+// 	resp.Body.Close()
+
+// 	results <- &Result{
+// 		StatusCode: resp.StatusCode,
+// 		Etag:       resp.Header.Get("Etag"),
+// 		Body:       body,
+// 	}
+// }
+
+// func processRequests(requests ...*apiRequest) []*Result {
+// 	ticker := time.NewTicker(1e9 / rateLimit)
+// 	resultChan := make(chan *Result)
+// 	results := make([]*Result, 0)
+// 	wg := new(sync.WaitGroup)
+
+// 	defer ticker.Stop()
+// 	wg.Add(len(requests))
+
+// 	go func() {
+// 		wg.Wait()
+// 		close(resultChan)
+// 	}()
+
+// 	for _, req := range requests {
+// 		go sendApiCall(req, ticker, wg, resultChan)
+// 	}
+
+// 	for r := range resultChan {
+// 		results = append(results, r)
+// 	}
+
+// 	return results
+
+// }

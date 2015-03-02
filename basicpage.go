@@ -1,186 +1,69 @@
 package nationbuilder
 
 import (
-	"encoding/json"
 	"fmt"
-	"net/url"
-	"strconv"
+	"net/http"
 )
 
 // BasicPage is an implementation of Nationbuilder's
 // basic page type
 type BasicPage struct {
-	// The path at which to place the page. Must be unique, and there are some restrictions for namespace collisions.
-	// (Optional- will be computed from name if not present)
-	Slug string `json:"slug"`
-	// The content html to have on the page. There is a whitelist of html elements and attributes that are allowed.
-	Content string `json:"content"`
-	// Valid values are 'published' or 'drafted'.  Required.
-	Status string `json:"status"`
-	// Internal name, how the page will be referred to in lists in the control panel (required)
-	Name string `json:"name"`
-	// Title of the page, shows up as tab name, for example (optional, defaults to the name)
-	Title string `json:"title"`
-	// Heading on the page (optional, defaults to the name)
-	Headline string `json:"headline"`
-	// Meta attribute for SEO - description (optional)
-	Excerpt string `json:"excerpt"`
-	// The unique identifier for this resource in an external service (optional)
-	ExternalID string `json:"external_id"`
-	// List of tags (optional)
-	Tags []string `json:"tags"`
-	// Page ID
-	ID int `json:"id"`
-}
-
-// Nationbuilder returns content wrapped within an object
-type BasicPageContainer struct {
-	BasicPageContent *BasicPage `json:"basic_page"`
-}
-
-func newBasicPageContainerFromJSON(data []byte) (*BasicPage, error) {
-	bp := &BasicPageContainer{}
-	err := json.Unmarshal(data, bp)
-	if err != nil {
-		return nil, err
-	}
-
-	return bp.BasicPageContent, nil
-}
-
-type BasicPageEndpoint struct {
-	url       url.URL
-	basicPage *BasicPage
-}
-
-func (b *BasicPageEndpoint) GetURL() string {
-	return b.url.String()
-}
-
-func (b *BasicPageEndpoint) GetBody() ([]byte, error) {
-	return json.Marshal(&BasicPageContainer{
-		BasicPageContent: b.basicPage,
-	})
-}
-
-func (b *BasicPageEndpoint) Retrieve() *BasicPage {
-	return b.basicPage
-}
-
-// func (b *BasicPageEndpoint) Update(bp *BasicPage) (*BasicPage, error) {
-
-// }
-
-// func (b *BasicPageEndpoint) Delete() error {
-
-// }
-
-func newBasicPageEndpoint(url url.URL, bp *BasicPage) *BasicPageEndpoint {
-	return &BasicPageEndpoint{
-		url:       url,
-		basicPage: bp,
-	}
-}
-
-// The basic page collection type
-type BasicPageCollection struct {
 	Page
+	// HTML for the page - will be run through a whitelist filter.
+	Content string `json:"content,omitempty"`
+}
+
+func (b *BasicPage) String() string {
+	return fmt.Sprintf("Basic Page: %s", b.Name)
+}
+
+// A 'page' of Nationbuilder Basic Pages
+type BasicPages struct {
 	Results []*BasicPage `json:"results"`
+	Pagination
 }
 
-// BasicPageEndpoint represents the basic page API
-// Note - it is not, somewhat strangely, possible to
-// directly retrieve a basic page by ID from the server.
-// One must page through to find the right page
-type basicPageCollectionEndpoint struct {
-	url        url.URL
-	limit      int
-	pageNumber int
-	pages      map[int]*BasicPageCollection
-	basicPages map[int]*BasicPageEndpoint
+// Wrapper around basic page
+type BasicPageWrap struct {
+	BasicPage *BasicPage `json:"basic_page"`
 }
 
-func (b *basicPageCollectionEndpoint) GetURL() string {
-	return b.url.String()
+// Retrieve a page of Basic Pages from the specified site
+func (n *NationbuilderClient) GetBasicPages(siteSlug string, options *Options) (basicPages *BasicPages, result *Result) {
+	u := fmt.Sprintf("/sites/%s/pages/basic_pages", siteSlug)
+	req := n.getRequest("GET", u, options)
+	result = n.retrieve(req, &basicPages)
+
+	return
 }
 
-func (b *basicPageCollectionEndpoint) SetLimit(limit int) {
-	b.limit = limit
-	q := b.url.Query()
-	q.Set("limit", strconv.Itoa(limit))
+// Create a Basic Page for the specified site
+func (n *NationbuilderClient) CreateBasicPage(siteSlug string, basicPage *BasicPage, options *Options) (newBasicPage *BasicPage, result *Result) {
+	u := fmt.Sprintf("/sites/%s/pages/basic_pages", siteSlug)
+	req := n.getRequest("POST", u, options)
+	bpw := &BasicPageWrap{}
+	result = n.create(&BasicPageWrap{basicPage}, req, bpw, http.StatusOK)
+	newBasicPage = bpw.BasicPage
 
-	b.url.RawQuery = q.Encode()
+	return
 }
 
-func (b *basicPageCollectionEndpoint) Retrieve() error {
-	res := retrieve(b)
-	if res.err != nil {
-		return res.err
-	}
+// Update a Basic Page
+func (n *NationbuilderClient) UpdateBasicPage(siteSlug string, id int, basicPage *BasicPage, options *Options) (newBasicPage *BasicPage, result *Result) {
+	u := fmt.Sprintf("/sites/%s/pages/basic_pages/%d", siteSlug, id)
+	req := n.getRequest("PUT", u, options)
+	bpw := &BasicPageWrap{}
+	result = n.create(&BasicPageWrap{basicPage}, req, bpw, http.StatusOK)
+	newBasicPage = bpw.BasicPage
 
-	basicPages := &BasicPageCollection{}
-	err := json.Unmarshal(res.body, basicPages)
-	if err != nil {
-		return err
-	}
-
-	b.pages[b.pageNumber] = basicPages
-
-	for _, p := range basicPages.Results {
-		u := b.url
-		u.Path += fmt.Sprintf("/%d", p.ID)
-		q := u.Query()
-		q.Del("limit")
-		u.RawQuery = q.Encode()
-		b.basicPages[p.ID] = newBasicPageEndpoint(u, p)
-	}
-
-	return nil
+	return
 }
 
-func (b *basicPageCollectionEndpoint) Create(bp ...*BasicPage) ([]*BasicPage, error) {
+// Delete a Basic Page
+func (n *NationbuilderClient) DeleteBasicPage(siteSlug string, id int) (result *Result) {
+	u := fmt.Sprintf("/sites/%s/pages/basic_pages/%d", siteSlug, id)
+	req := n.getRequest("DELETE", u, nil)
+	result = n.delete(req)
 
-	bpe := make([]*BasicPageEndpoint, 0)
-	for _, p := range bp {
-		bpe = append(bpe, newBasicPageEndpoint(b.url, p))
-	}
-
-	results := create(bpe...)
-
-	if errors, ok := results.getErrors(); !ok {
-		return errors
-	} else {
-		bps := make([]*BasicPage)
-		for _, r := range results {
-			p, err := NewBasicPageContainerFromJSON(r.body)
-			if err != nil {
-				// What?
-			}
-			b.basicPages[p.ID] = p
-			bps = append(bps, p)
-		}
-		return nil
-	}
+	return
 }
-
-func (b *basicPageCollectionEndpoint) BasicPage(id int) {
-
-}
-
-func newBasicPageCollectionEndpoint() *basicPageCollectionEndpoint {
-	b := &basicPageCollectionEndpoint{
-		url:        url.URL{},
-		basicPages: make(map[int]*BasicPageEndpoint),
-	}
-
-	b.SetLimit(50)
-}
-
-// myNation := NewNation("slug", "key")
-// pages := myNation.Site("myAwesomeSite").BasicPages()
-// pages.Retrieve()
-// pages.Next()
-// pages.Prev()
-// p, err := pages.BasicPage(7)
-// p.Update(&BasicPage{})
-// p.Delete()

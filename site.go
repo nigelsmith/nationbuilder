@@ -1,17 +1,26 @@
 package nationbuilder
 
-import "net/url"
+import "fmt"
 
 type Site struct {
-	url *url.URL
+	ID     int
+	Name   string
+	Slug   string
+	Domain string
 }
 
-func (s *Site) BasicPages() *BasicPageCollectionEndpoint {
-	u := s.url
-	u.Path += "pages/basic_pages"
+func (s *Site) String() string {
+	return fmt.Sprintf("Site: %s", s.Name)
+}
 
-	bp := newBasicPageCollectionEndpoint()
-	bp.url = u
+type SitePage struct {
+	Results []*Site `json:"results"`
+	Pagination
+}
 
-	return bp
+func (n *NationbuilderClient) GetSites(options *Options) (sites *SitePage, result *Result) {
+	req := n.getRequest("GET", "/sites", options)
+	result = n.retrieve(req, &sites)
+
+	return
 }
