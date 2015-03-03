@@ -6,7 +6,9 @@ import (
 	"strconv"
 )
 
-// Person represents a person in the nationbuilder database
+// The enormous Person type within Nationbuilder.  Note that many of the references to other Person objects
+// do not populate all of the fields in the Person type and instead return an abridged version.
+// Only a request for a specific person returns the full Person object.
 type Person struct {
 	ActiveCustomerExpiresAt               string   `json:"active_customer_expires_at,omitempty"`
 	ActiveCustomerStartedAt               string   `json:"active_customer_started_at,omitempty"`
@@ -285,7 +287,7 @@ func (n *NationbuilderClient) NearbyPeople(lattitude float32, longtitude float32
 	return
 }
 
-// Search people
+// Search people by providing a PeopleSearchOptions object together with any additional options (if any)
 func (n *NationbuilderClient) SearchPeople(searchOptions *PeopleSearchOptions, options *Options) (people *People, result *Result) {
 	if searchOptions != nil {
 		if options == nil {

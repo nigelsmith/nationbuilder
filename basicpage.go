@@ -17,14 +17,14 @@ func (b *BasicPage) String() string {
 	return fmt.Sprintf("Basic Page: %s", b.Name)
 }
 
-// A 'page' of Nationbuilder Basic Pages
+// Paginated collection of basic pages
 type BasicPages struct {
 	Results []*BasicPage `json:"results"`
 	Pagination
 }
 
 // Wrapper around basic page
-type BasicPageWrap struct {
+type basicPageWrap struct {
 	BasicPage *BasicPage `json:"basic_page"`
 }
 
@@ -41,8 +41,8 @@ func (n *NationbuilderClient) GetBasicPages(siteSlug string, options *Options) (
 func (n *NationbuilderClient) CreateBasicPage(siteSlug string, basicPage *BasicPage, options *Options) (newBasicPage *BasicPage, result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/basic_pages", siteSlug)
 	req := n.getRequest("POST", u, options)
-	bpw := &BasicPageWrap{}
-	result = n.create(&BasicPageWrap{basicPage}, req, bpw, http.StatusOK)
+	bpw := &basicPageWrap{}
+	result = n.create(&basicPageWrap{basicPage}, req, bpw, http.StatusOK)
 	newBasicPage = bpw.BasicPage
 
 	return
@@ -52,8 +52,8 @@ func (n *NationbuilderClient) CreateBasicPage(siteSlug string, basicPage *BasicP
 func (n *NationbuilderClient) UpdateBasicPage(siteSlug string, id int, basicPage *BasicPage, options *Options) (newBasicPage *BasicPage, result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/basic_pages/%d", siteSlug, id)
 	req := n.getRequest("PUT", u, options)
-	bpw := &BasicPageWrap{}
-	result = n.create(&BasicPageWrap{basicPage}, req, bpw, http.StatusOK)
+	bpw := &basicPageWrap{}
+	result = n.create(&basicPageWrap{basicPage}, req, bpw, http.StatusOK)
 	newBasicPage = bpw.BasicPage
 
 	return

@@ -15,14 +15,12 @@ const (
 	rateLimit = 10
 )
 
-// Result provides details of an API request
-// Implements type Error
+// Result provides information about a request to the API
 type Result struct {
 	StatusCode int
 	Err        error
 	NationErr  *NationError
 	Body       []byte
-	Etag       string
 }
 
 func (r *Result) Error() string {
@@ -57,6 +55,9 @@ func (r *Result) processResponse(expectedStatus int, dst interface{}) {
 	}
 }
 
+// A result can encounter a local error - marshalling or unmarshalling JSON for example -
+// or an API error - a missing resource for instance.  HasError is a quick way of checking
+// to see if anything went wrong with the request.
 func (r *Result) HasError() bool {
 	return r.Err != nil || r.NationErr != nil
 }
@@ -129,13 +130,6 @@ func (n *NationbuilderClient) sendRequest(request *apiRequest) *Result {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
 
-	if request.etag != "" {
-		if debug {
-			log.Println("Set etag of: " + request.etag)
-		}
-		req.Header.Set("If-None-Match", request.etag)
-	}
-
 	if debug {
 		log.Printf("Making %s request to %s", request.method, request.url)
 	}
@@ -146,6 +140,7 @@ func (n *NationbuilderClient) sendRequest(request *apiRequest) *Result {
 			Err: err,
 		}
 	}
+	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -154,7 +149,6 @@ func (n *NationbuilderClient) sendRequest(request *apiRequest) *Result {
 			Err:        err,
 		}
 	}
-	resp.Body.Close()
 
 	if debug {
 		log.Printf("StatusCode %d for %s to %s", resp.StatusCode, request.method, request.url)
@@ -163,7 +157,6 @@ func (n *NationbuilderClient) sendRequest(request *apiRequest) *Result {
 	return &Result{
 		StatusCode: resp.StatusCode,
 		Body:       body,
-		Etag:       resp.Header.Get("Etag"),
 	}
 }
 

@@ -18,12 +18,13 @@ func (b *BlogPost) String() string {
 	return fmt.Sprintf("ID: %d, Blog Post: %s", b.ID, b.Name)
 }
 
+// A paginated collection of blog posts
 type BlogPosts struct {
 	Results []*BlogPost `json:"results"`
 	Pagination
 }
 
-type BlogPostWrap struct {
+type blogPostWrap struct {
 	BlogPost *BlogPost `json:"blog_post"`
 }
 
@@ -40,7 +41,7 @@ func (n *NationbuilderClient) GetBlogPosts(siteSlug string, id int, options *Opt
 func (n *NationbuilderClient) GetBlogPost(siteSlug string, blogID int, postID int, options *Options) (blogPost *BlogPost, result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/blogs/%d/posts/%d", siteSlug, blogID, postID)
 	req := n.getRequest("GET", u, options)
-	b := &BlogPostWrap{}
+	b := &blogPostWrap{}
 	result = n.retrieve(req, b)
 	blogPost = b.BlogPost
 
@@ -51,8 +52,8 @@ func (n *NationbuilderClient) GetBlogPost(siteSlug string, blogID int, postID in
 func (n *NationbuilderClient) CreateBlogPost(siteSlug string, id int, blogPost *BlogPost, options *Options) (newBlogPost *BlogPost, result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/blogs/%d/posts", siteSlug, id)
 	req := n.getRequest("POST", u, options)
-	bpw := &BlogPostWrap{}
-	result = n.create(&BlogPostWrap{blogPost}, req, bpw, http.StatusOK)
+	bpw := &blogPostWrap{}
+	result = n.create(&blogPostWrap{blogPost}, req, bpw, http.StatusOK)
 	newBlogPost = bpw.BlogPost
 
 	return
@@ -62,8 +63,8 @@ func (n *NationbuilderClient) CreateBlogPost(siteSlug string, id int, blogPost *
 func (n *NationbuilderClient) UpdateBlogPost(siteSlug string, blogID int, postID int, blogPost *BlogPost, options *Options) (newBlogPost *BlogPost, result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/blogs/%d/posts/%d", siteSlug, blogID, postID)
 	req := n.getRequest("PUT", u, options)
-	bpw := &BlogPostWrap{}
-	result = n.create(&BlogPostWrap{blogPost}, req, bpw, http.StatusOK)
+	bpw := &blogPostWrap{}
+	result = n.create(&blogPostWrap{blogPost}, req, bpw, http.StatusOK)
 	newBlogPost = bpw.BlogPost
 
 	return

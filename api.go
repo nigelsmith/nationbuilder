@@ -52,7 +52,7 @@ type NationbuilderClient struct {
 
 func (n *NationbuilderClient) getRequest(method string, path string, options *Options) *apiRequest {
 	b := *n.baseURL
-	b.u.Path += path
+	b.extendPath(path)
 
 	if options != nil {
 		options.setQuery(&b.u)
@@ -69,6 +69,7 @@ func (n *NationbuilderClient) SetClient(c *http.Client) {
 	n.c = c
 }
 
+// Creates a new Nationbuilder Client
 func NewNationbuilderClient(slug string, key string) (*NationbuilderClient, error) {
 	u, err := url.Parse(fmt.Sprintf("https://%s.nationbuilder.com/api/%s", slug, apiVersion))
 	if err != nil {

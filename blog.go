@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+// A nationbuilder blog - the model for which doesn't vary from the page type
 type Blog struct {
 	Page
 }
@@ -20,7 +21,7 @@ type Blogs struct {
 }
 
 // Wrapper around basic page
-type BlogWrap struct {
+type blogWrap struct {
 	Blog *Blog `json:"blog"`
 }
 
@@ -37,8 +38,8 @@ func (n *NationbuilderClient) GetBlogs(siteSlug string, options *Options) (blogs
 func (n *NationbuilderClient) CreateBlog(siteSlug string, blog *Blog, options *Options) (newBlog *Blog, result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/blogs", siteSlug)
 	req := n.getRequest("POST", u, options)
-	bw := &BlogWrap{}
-	result = n.create(&BlogWrap{blog}, req, bw, http.StatusOK)
+	bw := &blogWrap{}
+	result = n.create(&blogWrap{blog}, req, bw, http.StatusOK)
 	newBlog = bw.Blog
 
 	return
@@ -48,8 +49,8 @@ func (n *NationbuilderClient) CreateBlog(siteSlug string, blog *Blog, options *O
 func (n *NationbuilderClient) UpdateBlog(siteSlug string, id int, blog *Blog, options *Options) (updatedBlog *Blog, result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/blogs/%d", siteSlug, id)
 	req := n.getRequest("PUT", u, options)
-	bw := &BlogWrap{}
-	result = n.create(&BlogWrap{blog}, req, bw, http.StatusOK)
+	bw := &blogWrap{}
+	result = n.create(&blogWrap{blog}, req, bw, http.StatusOK)
 	updatedBlog = bw.Blog
 
 	return

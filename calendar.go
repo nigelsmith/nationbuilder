@@ -30,7 +30,7 @@ type Calendars struct {
 	Pagination
 }
 
-type CalendarWrap struct {
+type calendarWrap struct {
 	Calendar *Calendar `json:"calendar"`
 }
 
@@ -47,7 +47,7 @@ func (n *NationbuilderClient) GetCalendars(siteSlug string, options *Options) (c
 func (n *NationbuilderClient) GetCalendar(siteSlug string, calendarID int, options *Options) (calendar *Calendar, result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/calendars/%d", siteSlug, calendarID)
 	req := n.getRequest("GET", u, options)
-	c := &CalendarWrap{}
+	c := &calendarWrap{}
 	result = n.retrieve(req, c)
 	calendar = c.Calendar
 
@@ -58,8 +58,8 @@ func (n *NationbuilderClient) GetCalendar(siteSlug string, calendarID int, optio
 func (n *NationbuilderClient) CreateCalendar(siteSlug string, calendar *Calendar, options *Options) (newCalendar *Calendar, result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/calendars", siteSlug)
 	req := n.getRequest("POST", u, options)
-	c := &CalendarWrap{}
-	result = n.create(&CalendarWrap{calendar}, req, c, http.StatusOK)
+	c := &calendarWrap{}
+	result = n.create(&calendarWrap{calendar}, req, c, http.StatusOK)
 	newCalendar = c.Calendar
 
 	return
@@ -69,8 +69,8 @@ func (n *NationbuilderClient) CreateCalendar(siteSlug string, calendar *Calendar
 func (n *NationbuilderClient) UpdateCalendar(siteSlug string, calendarID int, calendar *Calendar, options *Options) (updatedCalendar *Calendar, result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/calendars/%d", siteSlug, calendarID)
 	req := n.getRequest("PUT", u, options)
-	c := &CalendarWrap{}
-	result = n.create(&CalendarWrap{calendar}, req, c, http.StatusOK)
+	c := &calendarWrap{}
+	result = n.create(&calendarWrap{calendar}, req, c, http.StatusOK)
 	updatedCalendar = c.Calendar
 
 	return
