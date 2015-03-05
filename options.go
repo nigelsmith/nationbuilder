@@ -25,6 +25,10 @@ func (o *Options) SetQueryOption(key string, value string) {
 func (o *Options) setQuery(u *url.URL) {
 	q := u.Query()
 
+	if o.queryOpts == nil {
+		o.queryOpts = make(url.Values)
+	}
+
 	for k, v := range o.queryOpts {
 		for _, s := range v {
 			q.Add(k, s)

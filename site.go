@@ -15,13 +15,13 @@ func (s *Site) String() string {
 }
 
 // A paginated collection of sites
-type SitePage struct {
+type Sites struct {
 	Results []*Site `json:"results"`
 	Pagination
 }
 
 // Retrieve sites
-func (n *NationbuilderClient) GetSites(options *Options) (sites *SitePage, result *Result) {
+func (n *NationbuilderClient) GetSites(options *Options) (sites *Sites, result *Result) {
 	req := n.getRequest("GET", "/sites", options)
 	result = n.retrieve(req, &sites)
 

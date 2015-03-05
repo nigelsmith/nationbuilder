@@ -32,6 +32,11 @@ func (r *Result) Error() string {
 		return fmt.Sprintf("StatusCode: %d, Code: %s, Message: %s, ErrorMsg: %s, ValidationErrors: %s",
 			r.StatusCode, r.NationErr.Code, r.NationErr.Message, r.NationErr.ErrorMessage, validationErrors)
 	}
+
+	if r.Err == nil {
+		return ""
+	}
+
 	return r.Err.Error()
 }
 

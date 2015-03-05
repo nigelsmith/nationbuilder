@@ -65,6 +65,9 @@ func (n *NationbuilderClient) getRequest(method string, path string, options *Op
 
 }
 
+// By default http.DefaultClient is used to make requests but if you need to set additional options
+// such as a proxy or you are running on Google App Engine, then you may want to supply a different
+// http client
 func (n *NationbuilderClient) SetClient(c *http.Client) {
 	n.c = c
 }
@@ -86,6 +89,6 @@ func NewNationbuilderClient(slug string, key string) (*NationbuilderClient, erro
 		Slug:    slug,
 		ApiKey:  key,
 		baseURL: nbURL,
-		c:       &http.Client{},
+		c:       http.DefaultClient,
 	}, nil
 }

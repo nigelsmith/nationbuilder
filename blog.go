@@ -20,12 +20,12 @@ type Blogs struct {
 	Pagination
 }
 
-// Wrapper around basic page
+// Wrapper around blogs
 type blogWrap struct {
 	Blog *Blog `json:"blog"`
 }
 
-// Retrieve a page of Basic Pages from the specified site
+// Retrieve a page of blogs from the specified site
 func (n *NationbuilderClient) GetBlogs(siteSlug string, options *Options) (blogs *Blogs, result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/blogs", siteSlug)
 	req := n.getRequest("GET", u, options)
@@ -34,7 +34,7 @@ func (n *NationbuilderClient) GetBlogs(siteSlug string, options *Options) (blogs
 	return
 }
 
-// Create a Basic Page for the specified site
+// Create a blog for the specified site
 func (n *NationbuilderClient) CreateBlog(siteSlug string, blog *Blog, options *Options) (newBlog *Blog, result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/blogs", siteSlug)
 	req := n.getRequest("POST", u, options)
@@ -45,7 +45,7 @@ func (n *NationbuilderClient) CreateBlog(siteSlug string, blog *Blog, options *O
 	return
 }
 
-// Update a Basic Page
+// Update a blog
 func (n *NationbuilderClient) UpdateBlog(siteSlug string, id int, blog *Blog, options *Options) (updatedBlog *Blog, result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/blogs/%d", siteSlug, id)
 	req := n.getRequest("PUT", u, options)
@@ -56,7 +56,7 @@ func (n *NationbuilderClient) UpdateBlog(siteSlug string, id int, blog *Blog, op
 	return
 }
 
-// Delete a Basic Page
+// Delete a blog
 func (n *NationbuilderClient) DeleteBlog(siteSlug string, id int) (result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/blogs/%d", siteSlug, id)
 	req := n.getRequest("DELETE", u, nil)
