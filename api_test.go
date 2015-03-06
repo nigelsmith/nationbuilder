@@ -1,12 +1,14 @@
 package nationbuilder
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 	"testing"
 )
 
@@ -31,8 +33,75 @@ var (
 	personURL       = fmt.Sprintf("/api/v1/people/%d", testID)
 	peopleNearbyURL = "/api/v1/people/nearby"
 	peopleSearchURL = "/api/v1/people/search"
+	personPushURL   = "/api/v1/people/push"
+	meURL           = "/api/v1/people/me"
 	sitesURL        = "/api/v1/sites"
+	attachmentsURL  = fmt.Sprintf("/api/v1/sites/%s/pages/%s/attachments", siteSlug, siteSlug)
+	attachmentURL   = fmt.Sprintf("/api/v1/sites/%s/pages/%s/attachments/%d", siteSlug, siteSlug, testID)
 )
+
+func attachmentHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		err := json.NewEncoder(w).Encode(&attachmentWrap{
+			Attachment: &Attachment{
+				FileName: testName,
+			},
+		})
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+	case "DELETE":
+		w.WriteHeader(http.StatusNoContent)
+	default:
+		w.WriteHeader(http.StatusBadRequest)
+	}
+}
+
+func attachmentsHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		d, _ := NewNationDate(testTime)
+		err := json.NewEncoder(w).Encode(&Attachments{
+			Results: []*Attachment{
+				&Attachment{
+					FileName:    testName,
+					UpdatedAt:   d,
+					ID:          testID,
+					ContentType: "image/jpeg",
+					URL:         "/foo/file.jpg",
+				},
+			},
+		})
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+	case "POST":
+		foo64 := base64.StdEncoding.EncodeToString([]byte("foo"))
+		upload := &uploadWrap{}
+		err := json.NewDecoder(r.Body).Decode(upload)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		if upload.Attachment.Content != foo64 {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		err = json.NewEncoder(w).Encode(&attachmentWrap{
+			Attachment: &Attachment{
+				FileName:    upload.Attachment.FileName,
+				UpdatedAt:   upload.Attachment.UpdatedAt,
+				URL:         "/foo/foo.jpg",
+				ContentType: upload.Attachment.ContentType,
+			},
+		})
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+	default:
+		w.WriteHeader(http.StatusBadRequest)
+	}
+}
 
 func sitesHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
@@ -429,6 +498,10 @@ func init() {
 	apiMux.HandleFunc(peopleNearbyURL, peopleNearbyHandler)
 	apiMux.HandleFunc(peopleSearchURL, peopleSearchHandler)
 	apiMux.HandleFunc(sitesURL, sitesHandler)
+	apiMux.HandleFunc(personPushURL, personHandler)
+	apiMux.HandleFunc(meURL, personHandler)
+	apiMux.HandleFunc(attachmentsURL, attachmentsHandler)
+	apiMux.HandleFunc(attachmentURL, attachmentHandler)
 
 	server := httptest.NewServer(apiMux)
 
@@ -960,6 +1033,33 @@ func TestSearchPeople(t *testing.T) {
 	}
 }
 
+func TestPushPerson(t *testing.T) {
+	p, result := c.PushPerson(&Person{
+		FirstName: "Phileas",
+		LastName:  "Fogg",
+	}, nil)
+	if result.HasError() {
+		t.Errorf("Unexpected error pushing person: %s", result.Error())
+		t.SkipNow()
+	}
+
+	if p == nil {
+		t.Error("Unexpected nil person response after push person - check API")
+	}
+}
+
+func TestGetYourself(t *testing.T) {
+	me, result := c.GetYourself(nil)
+	if result.HasError() {
+		t.Errorf("Unexpected error fetching yourself: %s", result.Error())
+		t.SkipNow()
+	}
+
+	if me == nil {
+		t.Error("Unexpected nil person response after call to 'me' endpoint - check API")
+	}
+}
+
 func TestSitesGet(t *testing.T) {
 	sites, result := c.GetSites(nil)
 	if result.HasError() {
@@ -969,5 +1069,60 @@ func TestSitesGet(t *testing.T) {
 
 	if sites == nil {
 		t.Error("Unexpected nil sites response")
+	}
+}
+
+func TestAttachmentsGet(t *testing.T) {
+	attachments, result := c.GetAttachments(siteSlug, siteSlug, nil)
+	if result.HasError() {
+		t.Errorf("Unexpected error fetching attachments: %s", result.Error())
+		t.SkipNow()
+	}
+
+	if attachments == nil {
+		t.Error("Unexpected nil attachments response - check API")
+	}
+}
+
+func TestAttachmentsCreate(t *testing.T) {
+	d, _ := NewNationDate(testTime)
+	u := &Upload{
+		FileName:    testName,
+		UpdatedAt:   d,
+		ContentType: "image/jpeg",
+	}
+	r := strings.NewReader("foo")
+	a, result := c.CreateAttachment(siteSlug, siteSlug, u, r, nil)
+	if result.HasError() {
+		t.Errorf("Unexpected error creating attachment: %s", result.Error())
+		t.SkipNow()
+	}
+
+	if a == nil {
+		t.Error("Unexpected nil attachment response - check API")
+	}
+
+	if a.FileName != u.FileName {
+		t.Error("Check test API - name mismatch for attachment and upload")
+	}
+}
+
+func TestAttachmentGet(t *testing.T) {
+	a, result := c.GetAttachment(siteSlug, siteSlug, testID, nil)
+	if result.HasError() {
+		t.Errorf("Unexpected error retrieving attachment: %s", result.Error())
+		t.SkipNow()
+	}
+
+	if a == nil {
+		t.Error("Unexpected nil attachment response - check API")
+	}
+}
+
+func TestAttachmentDelete(t *testing.T) {
+	result := c.DeleteAttachment(siteSlug, siteSlug, testID, nil)
+	if result.HasError() {
+		t.Errorf("Unexpected error deleting attachment: %s", result.Error())
+		t.SkipNow()
 	}
 }

@@ -21,7 +21,7 @@ type Page struct {
 	// Numeric ID of the person who authored the page
 	AuthorID int `json:"author_id,omitempty"`
 	// Page publication date in format described by DateFormat
-	PublishedAt string `json:"published_at,omitempty"`
+	PublishedAt *NationDate `json:"published_at,omitempty"`
 	// The external ID, if any, that a page has (e.g. a previous wordpress page). Optional field.
 	ExternalID string `json:"external_id,omitempty"`
 	// Page tags
