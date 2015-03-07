@@ -225,6 +225,32 @@ type personWrap struct {
 	Person *Person `json:"person"`
 }
 
+type Tag struct {
+	PersonID  int         `json:"person_id"`
+	Tag       string      `json:"tag"`
+	CreatedAt *NationDate `json:"created_at"`
+}
+
+func (t *Tag) String() string {
+	return fmt.Sprintf("Tag: %s", t.Tag)
+}
+
+type Tags struct {
+	Taggings []*Tag `json:"taggings"`
+}
+
+type tagWrap struct {
+	Tagging *Tag `json:"tagging"`
+}
+
+type tagStringWrap struct {
+	Tagging tagString `json:"tagging"`
+}
+
+type tagString struct {
+	Tag []string `json:"tag"`
+}
+
 // Retrieve a page of people
 func (n *NationbuilderClient) GetPeople(options *Options) (people *People, result *Result) {
 	req := n.getRequest("GET", "/people", options)
@@ -317,6 +343,41 @@ func (n *NationbuilderClient) SearchPeople(searchOptions *PeopleSearchOptions, o
 	}
 	req := n.getRequest("GET", "/people/search", options)
 	result = n.retrieve(req, &people)
+
+	return
+}
+
+// Retrieve tags for the given person
+func (n *NationbuilderClient) GetPersonTags(id int, options *Options) (tags []*Tag, result *Result) {
+	u := fmt.Sprintf("/people/%d/taggings", id)
+	req := n.getRequest("GET", u, options)
+	tw := &Tags{}
+	result = n.retrieve(req, tw)
+	tags = tw.Taggings
+
+	return
+}
+
+// Set a tag on a person
+func (n *NationbuilderClient) CreatePersonTag(id int, tags []string, options *Options) (tag *Tag, result *Result) {
+	u := fmt.Sprintf("/people/%d/taggings", id)
+	r := n.getRequest("PUT", u, options)
+	tw := &tagStringWrap{
+		Tagging: tagString{tags},
+	}
+
+	newTag := &tagWrap{}
+	result = n.create(tw, r, newTag, http.StatusOK)
+	tag = newTag.Tagging
+
+	return
+}
+
+// Delete a tag on a person
+func (n *NationbuilderClient) DeletePersonTag(id int, tagName string, options *Options) (result *Result) {
+	u := fmt.Sprintf("/people/%d/taggings/%s", id, tagName)
+	r := n.getRequest("DELETE", u, options)
+	result = n.delete(r)
 
 	return
 }
