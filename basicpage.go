@@ -29,7 +29,7 @@ type basicPageWrap struct {
 }
 
 // Retrieve a page of Basic Pages from the specified site
-func (n *NationbuilderClient) GetBasicPages(siteSlug string, options *Options) (basicPages *BasicPages, result *Result) {
+func (n *Client) GetBasicPages(siteSlug string, options *Options) (basicPages *BasicPages, result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/basic_pages", siteSlug)
 	req := n.getRequest("GET", u, options)
 	result = n.retrieve(req, &basicPages)
@@ -38,7 +38,7 @@ func (n *NationbuilderClient) GetBasicPages(siteSlug string, options *Options) (
 }
 
 // Create a Basic Page for the specified site
-func (n *NationbuilderClient) CreateBasicPage(siteSlug string, basicPage *BasicPage, options *Options) (newBasicPage *BasicPage, result *Result) {
+func (n *Client) CreateBasicPage(siteSlug string, basicPage *BasicPage, options *Options) (newBasicPage *BasicPage, result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/basic_pages", siteSlug)
 	req := n.getRequest("POST", u, options)
 	bpw := &basicPageWrap{}
@@ -49,7 +49,7 @@ func (n *NationbuilderClient) CreateBasicPage(siteSlug string, basicPage *BasicP
 }
 
 // Update a Basic Page
-func (n *NationbuilderClient) UpdateBasicPage(siteSlug string, id int, basicPage *BasicPage, options *Options) (newBasicPage *BasicPage, result *Result) {
+func (n *Client) UpdateBasicPage(siteSlug string, id int, basicPage *BasicPage, options *Options) (newBasicPage *BasicPage, result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/basic_pages/%d", siteSlug, id)
 	req := n.getRequest("PUT", u, options)
 	bpw := &basicPageWrap{}
@@ -60,9 +60,9 @@ func (n *NationbuilderClient) UpdateBasicPage(siteSlug string, id int, basicPage
 }
 
 // Delete a Basic Page
-func (n *NationbuilderClient) DeleteBasicPage(siteSlug string, id int) (result *Result) {
+func (n *Client) DeleteBasicPage(siteSlug string, id int, options *Options) (result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/basic_pages/%d", siteSlug, id)
-	req := n.getRequest("DELETE", u, nil)
+	req := n.getRequest("DELETE", u, options)
 	result = n.delete(req)
 
 	return

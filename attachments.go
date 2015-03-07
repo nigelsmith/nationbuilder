@@ -11,11 +11,11 @@ import (
 
 // Attachment represents a file 'attached' to a particular page
 type Attachment struct {
-	ID          int         `json:"id,omitempty"`
-	FileName    string      `json:"filename,omitempty"`
-	UpdatedAt   *NationDate `json:"updated_at,omitempty"`
-	ContentType string      `json:"content_type,omitempty"`
-	URL         string      `json:"url,omitempty"`
+	ID          int    `json:"id,omitempty"`
+	FileName    string `json:"filename,omitempty"`
+	UpdatedAt   *Date  `json:"updated_at,omitempty"`
+	ContentType string `json:"content_type,omitempty"`
+	URL         string `json:"url,omitempty"`
 }
 
 func (a *Attachment) String() string {
@@ -35,10 +35,10 @@ type attachmentWrap struct {
 // An upload with a content payload of a base64 encoded string representation
 // of a file.
 type Upload struct {
-	FileName    string      `json:"filename,omitempty"`
-	UpdatedAt   *NationDate `json:"updated_at"`
-	ContentType string      `json:"content_type,omitempty"`
-	Content     string      `json:"content,omitempty"`
+	FileName    string `json:"filename,omitempty"`
+	UpdatedAt   *Date  `json:"updated_at"`
+	ContentType string `json:"content_type,omitempty"`
+	Content     string `json:"content,omitempty"`
 }
 
 type uploadWrap struct {
@@ -46,7 +46,7 @@ type uploadWrap struct {
 }
 
 // Retrieve a page of attachments for the given site and page
-func (n *NationbuilderClient) GetAttachments(siteSlug string, pageSlug string, options *Options) (attachments *Attachments, result *Result) {
+func (n *Client) GetAttachments(siteSlug string, pageSlug string, options *Options) (attachments *Attachments, result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/%s/attachments", siteSlug, pageSlug)
 	req := n.getRequest("GET", u, options)
 	result = n.retrieve(req, &attachments)
@@ -59,7 +59,7 @@ func (n *NationbuilderClient) GetAttachments(siteSlug string, pageSlug string, o
 // I.e. you may base64 encode your own content and provide it that way or provide a reader and the resulting
 // bytes will be base64 encoded for you.  If the upload's content is not empty and an io.Reader is provided
 // then the upload.Content will take precedence.
-func (n *NationbuilderClient) CreateAttachment(siteSlug string, pageSlug string, upload *Upload, file io.Reader, options *Options) (attachment *Attachment, result *Result) {
+func (n *Client) CreateAttachment(siteSlug string, pageSlug string, upload *Upload, file io.Reader, options *Options) (attachment *Attachment, result *Result) {
 	if upload == nil {
 		return nil, &Result{
 			Err: errors.New("Please supply an attachment object to upload"),
@@ -92,7 +92,7 @@ func (n *NationbuilderClient) CreateAttachment(siteSlug string, pageSlug string,
 }
 
 // Retrieve a single attachment for the given site and page with the specified attachment id
-func (n *NationbuilderClient) GetAttachment(siteSlug string, pageSlug string, id int, options *Options) (attachment *Attachment, result *Result) {
+func (n *Client) GetAttachment(siteSlug string, pageSlug string, id int, options *Options) (attachment *Attachment, result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/%s/attachments/%d", siteSlug, pageSlug, id)
 	r := n.getRequest("GET", u, options)
 	a := &attachmentWrap{}
@@ -103,7 +103,7 @@ func (n *NationbuilderClient) GetAttachment(siteSlug string, pageSlug string, id
 }
 
 // Delete a page attachment
-func (n *NationbuilderClient) DeleteAttachment(siteSlug string, pageSlug string, id int, options *Options) (result *Result) {
+func (n *Client) DeleteAttachment(siteSlug string, pageSlug string, id int, options *Options) (result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/%s/attachments/%d", siteSlug, pageSlug, id)
 	r := n.getRequest("DELETE", u, options)
 	result = n.delete(r)

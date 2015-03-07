@@ -5,7 +5,7 @@ In order to use it a client must be instantiated with a nation slug and remote A
 
 Create a nationbuilder client
 
-	client, err := nationbuilder.NewNationbuilderClient("myNation", "myAPIKey")
+	client, err := nationbuilder.NewClient("myNation", "myAPIKey")
 	if err != nil {
 		log.Fatal(err.Error())
 	}

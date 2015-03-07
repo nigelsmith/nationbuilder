@@ -18,7 +18,7 @@ const siteSlug = "testSite"
 const testName = "testName"
 const testID = 1
 
-var c *NationbuilderClient
+var c *Client
 
 var (
 	basicPagesURL   = fmt.Sprintf("/api/v1/sites/%s/pages/basic_pages", siteSlug)
@@ -61,7 +61,7 @@ func attachmentHandler(w http.ResponseWriter, r *http.Request) {
 func attachmentsHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		d, _ := NewNationDate(testTime)
+		d, _ := NewDate(testTime)
 		err := json.NewEncoder(w).Encode(&Attachments{
 			Results: []*Attachment{
 				&Attachment{
@@ -478,7 +478,7 @@ func blogHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func init() {
-	client, err := NewNationbuilderClient(slug, apiKey)
+	client, err := NewClient(slug, apiKey)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -514,7 +514,7 @@ func init() {
 }
 
 func TestNationbuilderURLExtendPath(t *testing.T) {
-	n, err := NewNationbuilderClient(slug, apiKey)
+	n, err := NewClient(slug, apiKey)
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -540,8 +540,8 @@ func TestNationbuilderURLExtendPath(t *testing.T) {
 	}
 }
 
-func TestNewNationbuilderClient(t *testing.T) {
-	c, err := NewNationbuilderClient(slug, apiKey)
+func TestNewClient(t *testing.T) {
+	c, err := NewClient(slug, apiKey)
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -629,7 +629,7 @@ func TestBasicPageUpdate(t *testing.T) {
 }
 
 func TestBasicPageDelete(t *testing.T) {
-	result := c.DeleteBasicPage(siteSlug, testID)
+	result := c.DeleteBasicPage(siteSlug, testID, nil)
 	if result.HasError() {
 		t.Errorf("Unexpected error - code %d, Err: %s", result.StatusCode, result.Error())
 	}
@@ -720,7 +720,7 @@ func TestBlogPostUpdate(t *testing.T) {
 }
 
 func TestBlogPostDelete(t *testing.T) {
-	result := c.DeleteBlogPost(siteSlug, testID, testID)
+	result := c.DeleteBlogPost(siteSlug, testID, testID, nil)
 	if result.HasError() {
 		t.Errorf("Unexpected error deleting blog post: %s", result.Error())
 		t.SkipNow()
@@ -802,7 +802,7 @@ func TestBlogUpdate(t *testing.T) {
 }
 
 func TestBlogDelete(t *testing.T) {
-	result := c.DeleteBlog(siteSlug, testID)
+	result := c.DeleteBlog(siteSlug, testID, nil)
 	if result.HasError() {
 		t.Errorf("Unexpected error deleting blog: %s", result.Error())
 		t.SkipNow()
@@ -883,7 +883,7 @@ func TestCalendarUpdate(t *testing.T) {
 }
 
 func TestCalendarDelete(t *testing.T) {
-	result := c.DeleteCalendar(siteSlug, testID)
+	result := c.DeleteCalendar(siteSlug, testID, nil)
 	if result.HasError() {
 		t.Errorf("Unexpected error deleting calendar: %s", result.Error())
 		t.SkipNow()
@@ -1085,7 +1085,7 @@ func TestAttachmentsGet(t *testing.T) {
 }
 
 func TestAttachmentsCreate(t *testing.T) {
-	d, _ := NewNationDate(testTime)
+	d, _ := NewDate(testTime)
 	u := &Upload{
 		FileName:    testName,
 		UpdatedAt:   d,

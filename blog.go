@@ -26,7 +26,7 @@ type blogWrap struct {
 }
 
 // Retrieve a page of blogs from the specified site
-func (n *NationbuilderClient) GetBlogs(siteSlug string, options *Options) (blogs *Blogs, result *Result) {
+func (n *Client) GetBlogs(siteSlug string, options *Options) (blogs *Blogs, result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/blogs", siteSlug)
 	req := n.getRequest("GET", u, options)
 	result = n.retrieve(req, &blogs)
@@ -35,7 +35,7 @@ func (n *NationbuilderClient) GetBlogs(siteSlug string, options *Options) (blogs
 }
 
 // Create a blog for the specified site
-func (n *NationbuilderClient) CreateBlog(siteSlug string, blog *Blog, options *Options) (newBlog *Blog, result *Result) {
+func (n *Client) CreateBlog(siteSlug string, blog *Blog, options *Options) (newBlog *Blog, result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/blogs", siteSlug)
 	req := n.getRequest("POST", u, options)
 	bw := &blogWrap{}
@@ -46,7 +46,7 @@ func (n *NationbuilderClient) CreateBlog(siteSlug string, blog *Blog, options *O
 }
 
 // Update a blog
-func (n *NationbuilderClient) UpdateBlog(siteSlug string, id int, blog *Blog, options *Options) (updatedBlog *Blog, result *Result) {
+func (n *Client) UpdateBlog(siteSlug string, id int, blog *Blog, options *Options) (updatedBlog *Blog, result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/blogs/%d", siteSlug, id)
 	req := n.getRequest("PUT", u, options)
 	bw := &blogWrap{}
@@ -57,9 +57,9 @@ func (n *NationbuilderClient) UpdateBlog(siteSlug string, id int, blog *Blog, op
 }
 
 // Delete a blog
-func (n *NationbuilderClient) DeleteBlog(siteSlug string, id int) (result *Result) {
+func (n *Client) DeleteBlog(siteSlug string, id int, options *Options) (result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/blogs/%d", siteSlug, id)
-	req := n.getRequest("DELETE", u, nil)
+	req := n.getRequest("DELETE", u, options)
 	result = n.delete(req)
 
 	return

@@ -5,8 +5,8 @@ import (
 	"testing"
 )
 
-func TestNationbuilderClientSetClient(t *testing.T) {
-	n, err := NewNationbuilderClient(siteSlug, apiKey)
+func TestClientSetHTTPClient(t *testing.T) {
+	n, err := NewClient(siteSlug, apiKey)
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -16,7 +16,7 @@ func TestNationbuilderClientSetClient(t *testing.T) {
 	}
 
 	client := &http.Client{}
-	n.SetClient(client)
+	n.SetHTTPClient(client)
 
 	if n.c != client {
 		t.Error("Expected client to have new http client")

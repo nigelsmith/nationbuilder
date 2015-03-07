@@ -81,7 +81,7 @@ type apiRequest struct {
 	body   []byte
 }
 
-func (n *NationbuilderClient) retrieve(r *apiRequest, dst interface{}) *Result {
+func (n *Client) retrieve(r *apiRequest, dst interface{}) *Result {
 	res := n.sendRequest(r)
 	if res.Err != nil {
 		return res
@@ -92,7 +92,7 @@ func (n *NationbuilderClient) retrieve(r *apiRequest, dst interface{}) *Result {
 	return res
 }
 
-func (n *NationbuilderClient) create(data interface{}, r *apiRequest, dst interface{}, expectedStatus int) *Result {
+func (n *Client) create(data interface{}, r *apiRequest, dst interface{}, expectedStatus int) *Result {
 	b, err := json.Marshal(data)
 	if err != nil {
 		return &Result{
@@ -113,7 +113,7 @@ func (n *NationbuilderClient) create(data interface{}, r *apiRequest, dst interf
 	return res
 }
 
-func (n *NationbuilderClient) delete(r *apiRequest) *Result {
+func (n *Client) delete(r *apiRequest) *Result {
 	res := n.sendRequest(r)
 	if res.Err != nil {
 		return res
@@ -124,7 +124,7 @@ func (n *NationbuilderClient) delete(r *apiRequest) *Result {
 	return res
 }
 
-func (n *NationbuilderClient) sendRequest(request *apiRequest) *Result {
+func (n *Client) sendRequest(request *apiRequest) *Result {
 	req, err := http.NewRequest(request.method, request.url, bytes.NewReader(request.body))
 	if err != nil {
 		return &Result{

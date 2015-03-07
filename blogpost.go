@@ -29,7 +29,7 @@ type blogPostWrap struct {
 }
 
 // Retrieve a page of Blog Posts for the given site and blog id
-func (n *NationbuilderClient) GetBlogPosts(siteSlug string, id int, options *Options) (blogPosts *BlogPosts, result *Result) {
+func (n *Client) GetBlogPosts(siteSlug string, id int, options *Options) (blogPosts *BlogPosts, result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/blogs/%d/posts", siteSlug, id)
 	req := n.getRequest("GET", u, options)
 	result = n.retrieve(req, &blogPosts)
@@ -38,7 +38,7 @@ func (n *NationbuilderClient) GetBlogPosts(siteSlug string, id int, options *Opt
 }
 
 // Retrieve an individual Blog Post
-func (n *NationbuilderClient) GetBlogPost(siteSlug string, blogID int, postID int, options *Options) (blogPost *BlogPost, result *Result) {
+func (n *Client) GetBlogPost(siteSlug string, blogID int, postID int, options *Options) (blogPost *BlogPost, result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/blogs/%d/posts/%d", siteSlug, blogID, postID)
 	req := n.getRequest("GET", u, options)
 	b := &blogPostWrap{}
@@ -49,7 +49,7 @@ func (n *NationbuilderClient) GetBlogPost(siteSlug string, blogID int, postID in
 }
 
 // Create a Blog Post for the specified site and blog id
-func (n *NationbuilderClient) CreateBlogPost(siteSlug string, id int, blogPost *BlogPost, options *Options) (newBlogPost *BlogPost, result *Result) {
+func (n *Client) CreateBlogPost(siteSlug string, id int, blogPost *BlogPost, options *Options) (newBlogPost *BlogPost, result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/blogs/%d/posts", siteSlug, id)
 	req := n.getRequest("POST", u, options)
 	bpw := &blogPostWrap{}
@@ -60,7 +60,7 @@ func (n *NationbuilderClient) CreateBlogPost(siteSlug string, id int, blogPost *
 }
 
 // Update a Blog Post for the specified site and blog id
-func (n *NationbuilderClient) UpdateBlogPost(siteSlug string, blogID int, postID int, blogPost *BlogPost, options *Options) (newBlogPost *BlogPost, result *Result) {
+func (n *Client) UpdateBlogPost(siteSlug string, blogID int, postID int, blogPost *BlogPost, options *Options) (newBlogPost *BlogPost, result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/blogs/%d/posts/%d", siteSlug, blogID, postID)
 	req := n.getRequest("PUT", u, options)
 	bpw := &blogPostWrap{}
@@ -71,9 +71,9 @@ func (n *NationbuilderClient) UpdateBlogPost(siteSlug string, blogID int, postID
 }
 
 // Delete a Blog Post
-func (n *NationbuilderClient) DeleteBlogPost(siteSlug string, blogID int, postID int) (result *Result) {
+func (n *Client) DeleteBlogPost(siteSlug string, blogID int, postID int, options *Options) (result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/blogs/%d/posts/%d", siteSlug, blogID, postID)
-	req := n.getRequest("DELETE", u, nil)
+	req := n.getRequest("DELETE", u, options)
 	result = n.delete(req)
 
 	return

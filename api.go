@@ -43,14 +43,14 @@ func (n *nationbuilderURL) String() string {
 	return n.u.String()
 }
 
-type NationbuilderClient struct {
+type Client struct {
 	Slug    string
 	ApiKey  string
 	baseURL *nationbuilderURL
 	c       *http.Client
 }
 
-func (n *NationbuilderClient) getRequest(method string, path string, options *Options) *apiRequest {
+func (n *Client) getRequest(method string, path string, options *Options) *apiRequest {
 	b := *n.baseURL
 	b.extendPath(path)
 
@@ -68,12 +68,12 @@ func (n *NationbuilderClient) getRequest(method string, path string, options *Op
 // By default http.DefaultClient is used to make requests but if you need to set additional options
 // such as a proxy or you are running on Google App Engine, then you may want to supply a different
 // http client
-func (n *NationbuilderClient) SetClient(c *http.Client) {
+func (n *Client) SetHTTPClient(c *http.Client) {
 	n.c = c
 }
 
 // Creates a new Nationbuilder Client
-func NewNationbuilderClient(slug string, key string) (*NationbuilderClient, error) {
+func NewClient(slug string, key string) (*Client, error) {
 	u, err := url.Parse(fmt.Sprintf("https://%s.nationbuilder.com/api/%s", slug, apiVersion))
 	if err != nil {
 		return nil, err
@@ -85,7 +85,7 @@ func NewNationbuilderClient(slug string, key string) (*NationbuilderClient, erro
 
 	nbURL.setToken(key)
 
-	return &NationbuilderClient{
+	return &Client{
 		Slug:    slug,
 		ApiKey:  key,
 		baseURL: nbURL,

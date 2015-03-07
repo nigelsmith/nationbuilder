@@ -21,7 +21,7 @@ type Sites struct {
 }
 
 // Retrieve sites
-func (n *NationbuilderClient) GetSites(options *Options) (sites *Sites, result *Result) {
+func (n *Client) GetSites(options *Options) (sites *Sites, result *Result) {
 	req := n.getRequest("GET", "/sites", options)
 	result = n.retrieve(req, &sites)
 

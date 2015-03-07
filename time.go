@@ -9,12 +9,12 @@ import (
 const TimeFormat = "2006-01-02T15:04:05-07:00"
 
 // A wrapper around time.Time to allow deserialising a string into a time object
-type NationDate struct {
+type Date struct {
 	Time *time.Time
 }
 
 // A nationbuilder formatted representation of the time
-func (n *NationDate) String() string {
+func (n *Date) String() string {
 	if n.Time == nil {
 		return ""
 	}
@@ -23,12 +23,12 @@ func (n *NationDate) String() string {
 }
 
 // Implement json.Marshaller
-func (n *NationDate) MarshalJSON() ([]byte, error) {
+func (n *Date) MarshalJSON() ([]byte, error) {
 	return []byte(`"` + n.String() + `"`), nil
 }
 
 // Implement json.Unmarshaller
-func (n *NationDate) UnmarshalJSON(b []byte) error {
+func (n *Date) UnmarshalJSON(b []byte) error {
 	s := strings.Trim(string(b), `"`)
 	if s == "" {
 		return nil
@@ -41,21 +41,21 @@ func (n *NationDate) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// Create a new NationDate from a string representation of a date
+// Create a new Date from a string representation of a date
 // which follows nationbuilder's date format
-func NewNationDate(date string) (*NationDate, error) {
+func NewDate(date string) (*Date, error) {
 	t, err := time.Parse(TimeFormat, date)
 	if err != nil {
 		return nil, err
 	}
-	return &NationDate{
+	return &Date{
 		Time: &t,
 	}, nil
 }
 
-// Shorthand function to return a nationdate wrapper around a time.Time object
-func NewNationDateFromTime(t time.Time) *NationDate {
-	return &NationDate{
+// Shorthand function to return a Date wrapper around a time.Time object
+func NewDateFromTime(t time.Time) *Date {
+	return &Date{
 		Time: &t,
 	}
 }

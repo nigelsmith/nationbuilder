@@ -35,7 +35,7 @@ type calendarWrap struct {
 }
 
 // Retrieve a page of Calendars for the given site and blog id
-func (n *NationbuilderClient) GetCalendars(siteSlug string, options *Options) (calendars *Calendars, result *Result) {
+func (n *Client) GetCalendars(siteSlug string, options *Options) (calendars *Calendars, result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/calendars", siteSlug)
 	req := n.getRequest("GET", u, options)
 	result = n.retrieve(req, &calendars)
@@ -44,7 +44,7 @@ func (n *NationbuilderClient) GetCalendars(siteSlug string, options *Options) (c
 }
 
 // Retrieve an individual Calendar
-func (n *NationbuilderClient) GetCalendar(siteSlug string, calendarID int, options *Options) (calendar *Calendar, result *Result) {
+func (n *Client) GetCalendar(siteSlug string, calendarID int, options *Options) (calendar *Calendar, result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/calendars/%d", siteSlug, calendarID)
 	req := n.getRequest("GET", u, options)
 	c := &calendarWrap{}
@@ -55,7 +55,7 @@ func (n *NationbuilderClient) GetCalendar(siteSlug string, calendarID int, optio
 }
 
 // Create a Calendar for the specified site
-func (n *NationbuilderClient) CreateCalendar(siteSlug string, calendar *Calendar, options *Options) (newCalendar *Calendar, result *Result) {
+func (n *Client) CreateCalendar(siteSlug string, calendar *Calendar, options *Options) (newCalendar *Calendar, result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/calendars", siteSlug)
 	req := n.getRequest("POST", u, options)
 	c := &calendarWrap{}
@@ -66,7 +66,7 @@ func (n *NationbuilderClient) CreateCalendar(siteSlug string, calendar *Calendar
 }
 
 // Update a Calendar for the specified site and with the specified ID
-func (n *NationbuilderClient) UpdateCalendar(siteSlug string, calendarID int, calendar *Calendar, options *Options) (updatedCalendar *Calendar, result *Result) {
+func (n *Client) UpdateCalendar(siteSlug string, calendarID int, calendar *Calendar, options *Options) (updatedCalendar *Calendar, result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/calendars/%d", siteSlug, calendarID)
 	req := n.getRequest("PUT", u, options)
 	c := &calendarWrap{}
@@ -77,9 +77,9 @@ func (n *NationbuilderClient) UpdateCalendar(siteSlug string, calendarID int, ca
 }
 
 // Delete a Calendar
-func (n *NationbuilderClient) DeleteCalendar(siteSlug string, calendarID int) (result *Result) {
+func (n *Client) DeleteCalendar(siteSlug string, calendarID int, options *Options) (result *Result) {
 	u := fmt.Sprintf("/sites/%s/pages/calendars/%d", siteSlug, calendarID)
-	req := n.getRequest("DELETE", u, nil)
+	req := n.getRequest("DELETE", u, options)
 	result = n.delete(req)
 
 	return
