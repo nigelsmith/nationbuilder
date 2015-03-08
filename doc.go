@@ -47,7 +47,7 @@ that was encountered.
 
 Make sure to call:
 
-	results.HasError()
+	result.HasError()
 
 to check whether an error has occurred.
 */
