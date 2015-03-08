@@ -323,7 +323,7 @@ func (n *Client) PushPerson(person *Person, options *Options) (pushedPerson *Per
 	return
 }
 
-// Retrieve a person
+// Retrieve yourself - i.e. the person object associated with the request
 func (n *Client) GetYourself(options *Options) (person *Person, result *Result) {
 	req := n.getRequest("GET", "/people/me", options)
 	pw := &personWrap{}
@@ -359,16 +359,24 @@ func (n *Client) GetPersonTags(id int, options *Options) (tags []*Tag, result *R
 }
 
 // Set a tag on a person
-func (n *Client) CreatePersonTag(id int, tags []string, options *Options) (tag *Tag, result *Result) {
+func (n *Client) CreatePersonTag(id int, tags []string, options *Options) (newTags *Tags, result *Result) {
 	u := fmt.Sprintf("/people/%d/taggings", id)
 	r := n.getRequest("PUT", u, options)
 	tw := &tagStringWrap{
 		Tagging: tagString{tags},
 	}
 
-	newTag := &tagWrap{}
-	result = n.create(tw, r, newTag, http.StatusOK)
-	tag = newTag.Tagging
+	if len(tags) == 1 {
+		newTag := &tagWrap{}
+		result = n.create(tw, r, newTag, http.StatusOK)
+		newTags = &Tags{
+			Taggings: []*Tag{
+				newTag.Tagging,
+			},
+		}
+	} else {
+		result = n.create(tw, r, &newTags, http.StatusOK)
+	}
 
 	return
 }
