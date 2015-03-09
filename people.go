@@ -12,25 +12,25 @@ import (
 type Person struct {
 	ActiveCustomerExpiresAt               *Date    `json:"active_customer_expires_at,omitempty"`
 	ActiveCustomerStartedAt               *Date    `json:"active_customer_started_at,omitempty"`
-	AuthorID                              uint     `json:"author_id,omitempty"`
+	AuthorID                              int      `json:"author_id,omitempty"`
 	Author                                *Person  `json:"author,omitempty"`
-	AutoImportID                          uint     `json:"auto_import_id,omitempty"`
+	AutoImportID                          int      `json:"auto_import_id,omitempty"`
 	Availability                          *Date    `json:"availability,omitempty"`
 	BannedAt                              *Date    `json:"banned_at,omitempty"`
 	BillingAddress                        *Address `json:"billing_address,omitempty"`
 	Bio                                   string   `json:"bio,omitempty"`
 	BirthDate                             *Date    `json:"birthdate,omitempty"`
-	CallStatusID                          uint     `json:"call_status_id,omitempty"`
+	CallStatusID                          int      `json:"call_status_id,omitempty"`
 	CallStatusName                        string   `json:"call_status_name,omitempty"`
-	CapitalAmountInCents                  uint     `json:"capital_amount_in_cents,omitempty"`
-	ChildrenCount                         uint     `json:"children_count,omitempty"`
+	CapitalAmountInCents                  int      `json:"capital_amount_in_cents,omitempty"`
+	ChildrenCount                         int      `json:"children_count,omitempty"`
 	Church                                string   `json:"church,omitempty"`
 	CityDistrict                          string   `json:"city_district,omitempty"`
 	CitySubDistrict                       string   `json:"city_sub_district,omitempty"`
 	CiviCRMID                             string   `json:"civicrm_id,omitempty"`
-	ClosedInvoicesAmountInCents           uint     `json:"closed_invoices_amount_in_cents,omitempty"`
-	ClosedInvoicesCount                   uint     `json:"closed_invoices_count,omitempty"`
-	ContactStatusID                       uint     `json:"contact_status_id,omitempty"`
+	ClosedInvoicesAmountInCents           int      `json:"closed_invoices_amount_in_cents,omitempty"`
+	ClosedInvoicesCount                   int      `json:"closed_invoices_count,omitempty"`
+	ContactStatusID                       int      `json:"contact_status_id,omitempty"`
 	ContactStatusName                     string   `json:"contact_status_name,omitempty"`
 	CouldVoteStatus                       bool     `json:"could_vote_status,omitempty"`
 	CountyDistrict                        string   `json:"county_district,omitempty"`
@@ -40,16 +40,16 @@ type Person struct {
 	Demographic                           string   `json:"demo,omitempty"`
 	DoNotCall                             bool     `json:"do_not_call,omitempty"`
 	DoNotContact                          bool     `json:"do_not_contact,omitempty"`
-	DonationsAmountInCents                uint     `json:"donations_amount_in_cents,omitempty"`
-	DonationsAmountThisCycleIncCents      uint     `json:"donations_amount_this_cycle_in_cents,omitempty"`
-	DonationsCountThisCycle               uint     `json:"donations_count_this_cycle,omitempty"`
-	DonationsCount                        uint     `json:"donations_count,omitempty"`
-	DonationsPledgedAmountInCents         uint     `json:"donations_pledged_amount_in_cents,omitempty"`
-	DonationsRaisedAmountInCents          uint     `json:"donations_raised_amount_in_cents,omitempty"`
-	DonationsRaisedAmountThisCycleInCents uint     `json:"donations_raised_amount_this_cycle_in_cents,omitempty"`
-	DonationsRaisedCountThisCycle         uint     `json:"donations_raised_count_this_cycle,omitempty"`
-	DonationsRaisedCount                  uint     `json:"donations_raised_count,omitempty"`
-	DonationsToRaiseAmount                uint     `json:"donations_to_raise_amount_in_cents,omitempty"`
+	DonationsAmountInCents                int      `json:"donations_amount_in_cents,omitempty"`
+	DonationsAmountThisCycleIncCents      int      `json:"donations_amount_this_cycle_in_cents,omitempty"`
+	DonationsCountThisCycle               int      `json:"donations_count_this_cycle,omitempty"`
+	DonationsCount                        int      `json:"donations_count,omitempty"`
+	DonationsPledgedAmountInCents         int      `json:"donations_pledged_amount_in_cents,omitempty"`
+	DonationsRaisedAmountInCents          int      `json:"donations_raised_amount_in_cents,omitempty"`
+	DonationsRaisedAmountThisCycleInCents int      `json:"donations_raised_amount_this_cycle_in_cents,omitempty"`
+	DonationsRaisedCountThisCycle         int      `json:"donations_raised_count_this_cycle,omitempty"`
+	DonationsRaisedCount                  int      `json:"donations_raised_count,omitempty"`
+	DonationsToRaiseAmount                int      `json:"donations_to_raise_amount_in_cents,omitempty"`
 	DwID                                  string   `json:"dw_id,omitempty"`
 	EmailOneIsBad                         bool     `json:"email1_is_bad,omitempty"`
 	EmailOne                              string   `json:"email1,omitempty"`
@@ -83,14 +83,14 @@ type Person struct {
 	FullName                              string   `json:"full_name,omitempty"`
 	HasFacebook                           bool     `json:"has_facebook,omitempty"`
 	HomeAddress                           *Address `json:"home_address,omitempty"`
-	ID                                    uint     `json:"id,omitempty"`
-	ImportID                              uint     `json:"import_id,omitempty"`
+	ID                                    int      `json:"id,omitempty"`
+	ImportID                              int      `json:"import_id,omitempty"`
 	InferredParty                         string   `json:"inferred_party,omitempty"`
-	InferredSupportLevel                  uint     `json:"inferred_support_level,omitempty"`
-	InvoicePaymentsAmountInCents          uint     `json:"invoice_payments_amount_in_cents,omitempty"`
-	InvoicePaymentsReferredAmountInCents  uint     `json:"invoice_payments_referred_amount_in_cents,omitempty"`
-	InvoicesAmountInCents                 uint     `json:"invoices_amount_in_cents,omitempty"`
-	InvoicesCount                         uint     `json:"invoices_count,omitempty"`
+	InferredSupportLevel                  int      `json:"inferred_support_level,omitempty"`
+	InvoicePaymentsAmountInCents          int      `json:"invoice_payments_amount_in_cents,omitempty"`
+	InvoicePaymentsReferredAmountInCents  int      `json:"invoice_payments_referred_amount_in_cents,omitempty"`
+	InvoicesAmountInCents                 int      `json:"invoices_amount_in_cents,omitempty"`
+	InvoicesCount                         int      `json:"invoices_count,omitempty"`
 	IsDeceased                            bool     `json:"is_deceased,omitempty"`
 	IsDonor                               bool     `json:"is_donor,omitempty"`
 	IsFundraiser                          bool     `json:"is_fundraiser,omitempty"`
@@ -108,7 +108,7 @@ type Person struct {
 	JudicialDistrict                      string   `json:"judicial_district,omitempty"`
 	LabourRegion                          string   `json:"labour_region,omitempty"`
 	Language                              string   `json:"language,omitempty"`
-	LastCallID                            uint     `json:"last_call_id,omitempty"`
+	LastCallID                            int      `json:"last_call_id,omitempty"`
 	LastContactedAt                       *Date    `json:"last_contacted_at,omitempty"`
 	LastContactedBy                       *Person  `json:"last_contacted_by,omitempty"`
 	LastDonatedAt                         *Date    `json:"last_donated_at,omitempty"`
@@ -131,16 +131,16 @@ type Person struct {
 	MobileNormalised                      string   `json:"mobile_normalized,omitempty"`
 	MobileOptIn                           bool     `json:"mobile_opt_in,omitempty"`
 	NbecGUID                              string   `json:"nbec_guid,omitempty"`
-	NbecPrecinctCode                      uint     `json:"nbec_precinct_code,omitempty"` //TODO unclear on whether this is an integer or string
+	NbecPrecinctCode                      int      `json:"nbec_precinct_code,omitempty"` //TODO unclear on whether this is an integer or string
 	NgpID                                 string   `json:"ngp_id,omitempty"`
 	NoteUpdatedAt                         string   `json:"note_updated_at,omitempty"`
 	Note                                  string   `json:"note,omitempty"`
 	Occupation                            string   `json:"note,omitempty"`
-	OutstandingInvoicesAmountInCents      uint     `json:"outstanding_invoices_amount_in_cents,omitempty"`
-	OutstandingInvoicesCount              uint     `json:"outstanding_invoices_count,omitempty"`
-	OverdueInvoicesCount                  uint     `json:"overdue_invoices_count,omitempty"`
+	OutstandingInvoicesAmountInCents      int      `json:"outstanding_invoices_amount_in_cents,omitempty"`
+	OutstandingInvoicesCount              int      `json:"outstanding_invoices_count,omitempty"`
+	OverdueInvoicesCount                  int      `json:"overdue_invoices_count,omitempty"`
 	PageSlug                              string   `json:"page_slug,omitempty"`
-	ParentID                              uint     `json:"parent_id,omitempty"`
+	ParentID                              int      `json:"parent_id,omitempty"`
 	Parent                                *Person  `json:"parent,omitempty"`
 	PartyMember                           bool     `json:"party_member,omitempty"`
 	Party                                 string   `json:"party,omitempty"`
@@ -154,7 +154,7 @@ type Person struct {
 	Prefix                                string   `json:"prefix,omitempty"`
 	PreviousParty                         string   `json:"previous_party,omitempty"`
 	PrimaryAddress                        *Address `json:"primary_address,omitempty"`
-	PrimaryEmailID                        uint     `json:"primary_email_id,omitempty"`
+	PrimaryEmailID                        int      `json:"primary_email_id,omitempty"`
 	PriorityLevelChangedAt                string   `json:"priority_level_changed_at,omitempty"`
 	PriorityLevel                         int      `json:"priority_level,omitempty"`
 	ProfileContentHTML                    string   `json:"profile_content_html,omitempty"`
@@ -301,7 +301,7 @@ func (n *Client) DeletePerson(id int, options *Options) (result *Result) {
 }
 
 // Retrieve people close to the provided latitude/longtitude within the given distance
-func (n *Client) NearbyPeople(lattitude float32, longtitude float32, distance uint, options *Options) (people *People, result *Result) {
+func (n *Client) NearbyPeople(lattitude float32, longtitude float32, distance int, options *Options) (people *People, result *Result) {
 	if options == nil {
 		options = NewOptions()
 	}
