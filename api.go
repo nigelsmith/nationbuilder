@@ -8,7 +8,7 @@ import (
 )
 
 const apiVersion = "v1"
-const debug = true
+const debug = false
 const defaultLimit = 50
 
 type nationbuilderURL struct {
