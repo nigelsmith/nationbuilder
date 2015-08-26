@@ -12,6 +12,7 @@ A work in progress implementation of a client for the Nationbuilder remote API.
 + Site
 + Attachments
 + People
++ Events (partial)
 
 with more to come over time.
 
