@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+	"time"
 )
 
 const apiKey = "testkey"
@@ -33,8 +34,11 @@ var (
 	personURL       = fmt.Sprintf("/api/v1/people/%d", testID)
 	peopleNearbyURL = "/api/v1/people/nearby"
 	peopleSearchURL = "/api/v1/people/search"
+	personMatchURL  = "/api/v1/people/match"
 	personPushURL   = "/api/v1/people/push"
 	meURL           = "/api/v1/people/me"
+	membershipsURL  = fmt.Sprintf("/api/v1/people/%d/memberships", testID)
+	donationsURL    = "/api/v1/donations"
 	sitesURL        = "/api/v1/sites"
 	attachmentsURL  = fmt.Sprintf("/api/v1/sites/%s/pages/%s/attachments", siteSlug, siteSlug)
 	attachmentURL   = fmt.Sprintf("/api/v1/sites/%s/pages/%s/attachments/%d", siteSlug, siteSlug, testID)
@@ -111,6 +115,36 @@ func sitesHandler(w http.ResponseWriter, r *http.Request) {
 				&Site{
 					Name: testName,
 				},
+			},
+		})
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+	default:
+		w.WriteHeader(http.StatusBadRequest)
+	}
+}
+
+func personMatchHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		q := r.URL.Query()
+		fName := q.Get("first_name")
+		lName := q.Get("last_name")
+		email := q.Get("email")
+		if fName == "" || lName == "" || email == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		if fName == "MatchMissingF" && lName == "MatchMissingL" && email == "match-missing@example.com" {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		err := json.NewEncoder(w).Encode(&personWrap{
+			Person: &Person{
+				FirstName: fName,
+				LastName:  lName,
+				Email:     email,
 			},
 		})
 		if err != nil {
@@ -238,6 +272,54 @@ func peopleHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func membershipsHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		memberships := &Memberships{
+			Results: []*Membership{
+				&Membership{
+					Name:         "test_membership",
+					PersonID:     1,
+					Status:       "active",
+					StatusReason: "API Test",
+					ExpiresOn:    NewDateFromTime(time.Date(2016, time.December, 25, 0, 0, 0, 0, time.UTC)),
+					StartedAt:    NewDateFromTime(time.Now()),
+				},
+			},
+		}
+		err := json.NewEncoder(w).Encode(memberships)
+		if err != nil {
+			log.Fatalf(err.Error())
+		}
+	case "POST":
+		mw := &membershipWrap{}
+		err := json.NewDecoder(r.Body).Decode(mw)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		mw.Membership.PersonID = testID
+		mw.Membership.CreatedAt = NewDateFromTime(time.Now())
+		w.WriteHeader(http.StatusCreated)
+		err = json.NewEncoder(w).Encode(mw)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+	case "PUT":
+		mw := &membershipWrap{}
+		err := json.NewDecoder(r.Body).Decode(mw)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		w.WriteHeader(http.StatusOK)
+		err = json.NewEncoder(w).Encode(mw)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+	default:
+		w.WriteHeader(http.StatusBadRequest)
+	}
+}
+
 func calendarHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
@@ -265,6 +347,31 @@ func calendarHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	case "DELETE":
 		w.WriteHeader(http.StatusNoContent)
+	default:
+		w.WriteHeader(http.StatusBadRequest)
+	}
+}
+
+func donationsHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "POST":
+		dw := &donationWrap{}
+		err := json.NewDecoder(r.Body).Decode(dw)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+
+		if dw.Donation.DonorID != testID || dw.Donation.AmountInCents != 100 {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		dw.Donation.ID = testID
+		w.WriteHeader(http.StatusOK)
+		err = json.NewEncoder(w).Encode(dw)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
 	default:
 		w.WriteHeader(http.StatusBadRequest)
 	}
@@ -495,11 +602,14 @@ func init() {
 	apiMux.HandleFunc(calendarURL, calendarHandler)
 	apiMux.HandleFunc(peopleURL, peopleHandler)
 	apiMux.HandleFunc(personURL, personHandler)
+	apiMux.HandleFunc(personMatchURL, personMatchHandler)
 	apiMux.HandleFunc(peopleNearbyURL, peopleNearbyHandler)
 	apiMux.HandleFunc(peopleSearchURL, peopleSearchHandler)
 	apiMux.HandleFunc(sitesURL, sitesHandler)
 	apiMux.HandleFunc(personPushURL, personHandler)
 	apiMux.HandleFunc(meURL, personHandler)
+	apiMux.HandleFunc(donationsURL, donationsHandler)
+	apiMux.HandleFunc(membershipsURL, membershipsHandler)
 	apiMux.HandleFunc(attachmentsURL, attachmentsHandler)
 	apiMux.HandleFunc(attachmentURL, attachmentHandler)
 
@@ -907,6 +1017,111 @@ func TestCalendarGet(t *testing.T) {
 	}
 }
 
+func TestDonationsCreate(t *testing.T) {
+	donation := &Donation{
+		DonorID: testID,
+		AmountInCents: 100,
+		SucceededAt: NewDateFromTime(time.Now()),
+		PaymentTypeName: "Cash",
+	}
+	newDonation, result := c.CreateDonation(donation, nil)
+	if result.HasError() {
+		t.Errorf("Error when creating donation: %s", result.Error())
+		t.SkipNow()
+	}
+	if newDonation == nil {
+		t.Error("Newly created donation is nil")
+		t.SkipNow()
+	}
+	if newDonation.DonorID != testID {
+		t.Errorf("Expected donor ID to be %d but saw %d", testID, newDonation.DonorID)
+	}
+	if newDonation.AmountInCents != 100 {
+		t.Errorf("Expected amountincents to be 100 but saw %d", newDonation.AmountInCents)
+	}
+	if newDonation.ID != testID {
+		t.Errorf("Expected donation ID to be %d but saw %d", testID, newDonation.ID)
+	}
+}
+
+func TestMembershipsGet(t *testing.T) {
+	memberships, result := c.GetMemberships(testID, nil)
+	if result.HasError() {
+		t.Error(result.Error())
+		t.SkipNow()
+	}
+
+	if result.StatusCode != http.StatusOK {
+		t.Errorf("Expected 200 when retrieving memberships but saw %d", result.StatusCode)
+		t.SkipNow()
+	}
+
+	if memberships == nil {
+		t.Error("Received nil when running membership test")
+	} else {
+		if len(memberships.Results) != 1 {
+			t.Errorf("Expected to see 1 membership but saw %d", len(memberships.Results))
+		}
+
+		m := memberships.Results[0]
+		if m.Name != "test_membership" {
+			t.Errorf("Expected membership name test_membership but saw %s", m.Name)
+		}
+
+		expiresOn := time.Date(2016, time.December, 25, 0, 0, 0, 0, time.UTC)
+
+		if !m.ExpiresOn.Time.Equal(expiresOn) {
+			t.Errorf("Expected membership expiry to equal %s but saw %s", m.ExpiresOn.Time, expiresOn)
+		}
+	}
+}
+
+func TestMembershipCreate(t *testing.T) {
+	membership := &Membership{
+		Name:   "test_membership",
+		Status: "active",
+	}
+	newM, result := c.CreateMembership(testID, membership, nil)
+	if result.HasError() {
+		t.Errorf("Error creating membership: %s", result.Error())
+		t.SkipNow()
+	}
+	if newM == nil {
+		t.Error("Expected new membership to be returned")
+		t.SkipNow()
+	} else {
+		if newM.PersonID != testID && newM.Name != "test_membership" && newM.Status != "active" {
+			t.Error("Returned values for new membership incorrect")
+		}
+	}
+
+}
+
+func TestMembershipUpdate(t *testing.T) {
+	membership := &Membership{
+		Name:         "test_membership",
+		Status:       "expired",
+		StatusReason: "test_reason",
+	}
+
+	updatedM, result := c.UpdateMembership(testID, membership, nil)
+	if result.HasError() {
+		t.Errorf("Error updating membership: %s", result.Error())
+		t.SkipNow()
+	}
+
+	if updatedM == nil {
+		t.Error("Expected updated membership to be returned")
+		t.SkipNow()
+	} else {
+		if updatedM.PersonID != testID && updatedM.Name != "test_membership" && updatedM.Status != "expired" &&
+			updatedM.StatusReason != "test_reason" {
+
+			t.Error("Returned values for updated membership incorrect")
+		}
+	}
+}
+
 func TestPeopleGet(t *testing.T) {
 	people, result := c.GetPeople(nil)
 	if result.HasError() {
@@ -1029,6 +1244,54 @@ func TestSearchPeople(t *testing.T) {
 
 	if people == nil {
 		t.Error("Unexpected nil people response")
+		t.SkipNow()
+	}
+}
+
+func TestMatchPerson(t *testing.T) {
+	opts := &PersonMatchOptions{
+		FirstName: "MatchFirst",
+		LastName:  "MatchLast",
+		Email:     "match@example.com",
+	}
+	person, result := c.MatchPerson(opts, nil)
+
+	if result.HasError() {
+		t.Errorf("Unexpected error matching a person: %s", result.Error())
+		t.SkipNow()
+	}
+
+	if person == nil {
+		t.Errorf("Expected match api to return person but returned nil")
+		t.SkipNow()
+	}
+
+	if person.FirstName != "MatchFirst" && person.LastName != "MatchLast" && person.Email != "match@example.com" {
+		t.Errorf("Expected match call to return test person but details differ: %s", person)
+		t.SkipNow()
+	}
+}
+
+func TestMatchMissingPerson(t *testing.T) {
+	opts := &PersonMatchOptions{
+		FirstName: "MatchMissingF",
+		LastName:  "MatchMissingL",
+		Email:     "match-missing@example.com",
+	}
+	person, result := c.MatchPerson(opts, nil)
+
+	if person != nil {
+		t.Errorf("Expected person to be nil when no match found but saw: %s", person)
+		t.SkipNow()
+	}
+
+	if !result.HasError() {
+		t.Errorf("Expected no match of person to be as NB behaviour and return an error")
+		t.SkipNow()
+	}
+
+	if result.StatusCode != http.StatusBadRequest {
+		t.Errorf("Expected error code to be 400 when no person matched but saw %d", result.StatusCode)
 		t.SkipNow()
 	}
 }

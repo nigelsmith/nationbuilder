@@ -347,6 +347,8 @@ func (n *Client) SearchPeople(searchOptions *PeopleSearchOptions, options *Optio
 	return
 }
 
+
+
 // Retrieve tags for the given person
 func (n *Client) GetPersonTags(id int, options *Options) (tags []*Tag, result *Result) {
 	u := fmt.Sprintf("/people/%d/taggings", id)
@@ -386,6 +388,22 @@ func (n *Client) DeletePersonTag(id int, tagName string, options *Options) (resu
 	u := fmt.Sprintf("/people/%d/taggings/%s", id, tagName)
 	r := n.getRequest("DELETE", u, options)
 	result = n.delete(r)
+
+	return
+}
+
+// MatchPerson attempts to match the provided match options to a person in the people database
+func (n *Client) MatchPerson(matchOptions *PersonMatchOptions, options *Options) (person *Person, result *Result) {
+	if matchOptions != nil {
+		if options == nil {
+			options = NewOptions()
+		}
+		matchOptions.setOptions(options)
+	}
+	req := n.getRequest("GET", "/people/match", options)
+	pw := &personWrap{}
+	result = n.retrieve(req, pw)
+	person = pw.Person
 
 	return
 }
@@ -445,4 +463,29 @@ func (p *PeopleSearchOptions) setOptionString(key string, value string, o *Optio
 	if value != "" {
 		o.SetQueryOption(key, value)
 	}
+}
+
+// TODO convert people search into using this func now there's the match endpoint also
+// look at easier way of handling this
+func setOptionString(key string, value string, o *Options) {
+	if value != "" {
+		o.SetQueryOption(key, value)
+	}
+}
+
+// PeopleMatchOptions represents the different query params that can be set for the people match endpoint
+type PersonMatchOptions struct {
+	Email     string
+	FirstName string
+	LastName  string
+	Phone     string
+	Mobile    string
+}
+
+func (pmo *PersonMatchOptions) setOptions(o *Options) {
+	setOptionString("email", pmo.Email, o)
+	setOptionString("first_name", pmo.FirstName, o)
+	setOptionString("last_name", pmo.LastName, o)
+	setOptionString("phone", pmo.Phone, o)
+	setOptionString("mobile", pmo.Mobile, o)
 }
