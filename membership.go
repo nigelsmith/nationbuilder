@@ -39,7 +39,7 @@ func (n *Client) CreateMembership(personID int, membership *Membership, options 
 	req := n.getRequest("POST", url, options)
 	mr := &membershipWrap{}
 
-	result := n.create(&membershipWrap{membership}, req, mr, http.StatusCreated)
+	result := n.create(&membershipWrap{membership}, req, mr, http.StatusOK)
 
 	return mr.Membership, result
 }

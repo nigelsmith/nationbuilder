@@ -299,7 +299,7 @@ func membershipsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		mw.Membership.PersonID = testID
 		mw.Membership.CreatedAt = NewDateFromTime(time.Now())
-		w.WriteHeader(http.StatusCreated)
+		w.WriteHeader(http.StatusOK)
 		err = json.NewEncoder(w).Encode(mw)
 		if err != nil {
 			log.Fatal(err.Error())
