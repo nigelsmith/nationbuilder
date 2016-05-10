@@ -149,7 +149,7 @@ type Person struct {
 	PhoneTime                             string   `json:"phone_time,omitempty"`
 	Phone                                 string   `json:"phone,omitempty"`
 	PrecinctCode                          string   `json:"precinct_code,omitempty"`
-	PrecinctID                            string   `json:"precinct_id,omitempty"`
+	PrecinctID                            int      `json:"precinct_id,omitempty"`
 	PrecintName                           string   `json:"precinct_name,omitempty"`
 	Prefix                                string   `json:"prefix,omitempty"`
 	PreviousParty                         string   `json:"previous_party,omitempty"`
@@ -346,8 +346,6 @@ func (n *Client) SearchPeople(searchOptions *PeopleSearchOptions, options *Optio
 
 	return
 }
-
-
 
 // Retrieve tags for the given person
 func (n *Client) GetPersonTags(id int, options *Options) (tags []*Tag, result *Result) {
