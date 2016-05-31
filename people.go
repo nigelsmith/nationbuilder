@@ -10,29 +10,29 @@ import (
 // do not populate all of the fields in the Person type and instead return an abridged version.
 // Only a request for a specific person returns the full Person object.
 type Person struct {
-	ActiveCustomerExpiresAt               *Date    `json:"active_customer_expires_at,omitempty"`
-	ActiveCustomerStartedAt               *Date    `json:"active_customer_started_at,omitempty"`
-	AuthorID                              int      `json:"author_id,omitempty"`
-	Author                                *Person  `json:"author,omitempty"`
-	AutoImportID                          int      `json:"auto_import_id,omitempty"`
-	Availability                          *Date    `json:"availability,omitempty"`
-	BannedAt                              *Date    `json:"banned_at,omitempty"`
-	BillingAddress                        *Address `json:"billing_address,omitempty"`
-	Bio                                   string   `json:"bio,omitempty"`
-	BirthDate                             *Date    `json:"birthdate,omitempty"`
-	CallStatusID                          int      `json:"call_status_id,omitempty"`
-	CallStatusName                        string   `json:"call_status_name,omitempty"`
-	CapitalAmountInCents                  int      `json:"capital_amount_in_cents,omitempty"`
-	ChildrenCount                         int      `json:"children_count,omitempty"`
-	Church                                string   `json:"church,omitempty"`
-	CityDistrict                          string   `json:"city_district,omitempty"`
-	CitySubDistrict                       string   `json:"city_sub_district,omitempty"`
-	CiviCRMID                             string   `json:"civicrm_id,omitempty"`
-	ClosedInvoicesAmountInCents           int      `json:"closed_invoices_amount_in_cents,omitempty"`
-	ClosedInvoicesCount                   int      `json:"closed_invoices_count,omitempty"`
-	ContactStatusID                       int      `json:"contact_status_id,omitempty"`
-	ContactStatusName                     string   `json:"contact_status_name,omitempty"`
-	CouldVoteStatus                       bool     `json:"could_vote_status,omitempty"`
+	ActiveCustomerExpiresAt     *Date    `json:"active_customer_expires_at,omitempty"`
+	ActiveCustomerStartedAt     *Date    `json:"active_customer_started_at,omitempty"`
+	AuthorID                    int      `json:"author_id,omitempty"`
+	Author                      *Person  `json:"author,omitempty"`
+	AutoImportID                int      `json:"auto_import_id,omitempty"`
+	Availability                string   `json:"availability,omitempty"`
+	BannedAt                    *Date    `json:"banned_at,omitempty"`
+	BillingAddress              *Address `json:"billing_address,omitempty"`
+	Bio                         string   `json:"bio,omitempty"`
+	BirthDate                   string   `json:"birthdate,omitempty"`
+	CallStatusID                int      `json:"call_status_id,omitempty"`
+	CallStatusName              string   `json:"call_status_name,omitempty"`
+	CapitalAmountInCents        int      `json:"capital_amount_in_cents,omitempty"`
+	ChildrenCount               int      `json:"children_count,omitempty"`
+	Church                      string   `json:"church,omitempty"`
+	CityDistrict                string   `json:"city_district,omitempty"`
+	CitySubDistrict             string   `json:"city_sub_district,omitempty"`
+	CiviCRMID                   int      `json:"civicrm_id,omitempty"`
+	ClosedInvoicesAmountInCents int      `json:"closed_invoices_amount_in_cents,omitempty"`
+	ClosedInvoicesCount         int      `json:"closed_invoices_count,omitempty"`
+	ContactStatusID             int      `json:"contact_status_id,omitempty"`
+	ContactStatusName           string   `json:"contact_status_name,omitempty"`
+	//CouldVoteStatus                       bool     `json:"could_vote_status,omitempty"`
 	CountyDistrict                        string   `json:"county_district,omitempty"`
 	CountyFileID                          string   `json:"county_file_id,omitempty"`
 	CreatedAt                             *Date    `json:"created_at,omitempty"`
@@ -50,7 +50,7 @@ type Person struct {
 	DonationsRaisedCountThisCycle         int      `json:"donations_raised_count_this_cycle,omitempty"`
 	DonationsRaisedCount                  int      `json:"donations_raised_count,omitempty"`
 	DonationsToRaiseAmount                int      `json:"donations_to_raise_amount_in_cents,omitempty"`
-	DwID                                  string   `json:"dw_id,omitempty"`
+	DwID                                  int      `json:"dw_id,omitempty"`
 	EmailOneIsBad                         bool     `json:"email1_is_bad,omitempty"`
 	EmailOne                              string   `json:"email1,omitempty"`
 	EmailTwoIsBad                         bool     `json:"email2_is_bad,omitempty"`
@@ -131,85 +131,86 @@ type Person struct {
 	MobileNormalised                      string   `json:"mobile_normalized,omitempty"`
 	MobileOptIn                           bool     `json:"mobile_opt_in,omitempty"`
 	NbecGUID                              string   `json:"nbec_guid,omitempty"`
-	NbecPrecinctCode                      int      `json:"nbec_precinct_code,omitempty"` //TODO unclear on whether this is an integer or string
-	NgpID                                 string   `json:"ngp_id,omitempty"`
-	NoteUpdatedAt                         string   `json:"note_updated_at,omitempty"`
-	Note                                  string   `json:"note,omitempty"`
-	Occupation                            string   `json:"note,omitempty"`
-	OutstandingInvoicesAmountInCents      int      `json:"outstanding_invoices_amount_in_cents,omitempty"`
-	OutstandingInvoicesCount              int      `json:"outstanding_invoices_count,omitempty"`
-	OverdueInvoicesCount                  int      `json:"overdue_invoices_count,omitempty"`
-	PageSlug                              string   `json:"page_slug,omitempty"`
-	ParentID                              int      `json:"parent_id,omitempty"`
-	Parent                                *Person  `json:"parent,omitempty"`
-	PartyMember                           bool     `json:"party_member,omitempty"`
-	Party                                 string   `json:"party,omitempty"`
-	PfStratID                             string   `json:"pf_strat_id,omitempty"`
-	PhoneNormalised                       string   `json:"phone_normalized,omitempty"`
-	PhoneTime                             string   `json:"phone_time,omitempty"`
-	Phone                                 string   `json:"phone,omitempty"`
-	PrecinctCode                          string   `json:"precinct_code,omitempty"`
-	PrecinctID                            int      `json:"precinct_id,omitempty"`
-	PrecintName                           string   `json:"precinct_name,omitempty"`
-	Prefix                                string   `json:"prefix,omitempty"`
-	PreviousParty                         string   `json:"previous_party,omitempty"`
-	PrimaryAddress                        *Address `json:"primary_address,omitempty"`
-	PrimaryEmailID                        int      `json:"primary_email_id,omitempty"`
-	PriorityLevelChangedAt                string   `json:"priority_level_changed_at,omitempty"`
-	PriorityLevel                         int      `json:"priority_level,omitempty"`
-	ProfileContentHTML                    string   `json:"profile_content_html,omitempty"`
-	ProfileContent                        string   `json:"profile_content,omitempty"`
-	ProfileHeadline                       string   `json:"profile_headline,omitempty"`
-	ProfileImageURLSSL                    string   `json:"profile_image_url_ssl,omitempty"`
-	ReceivedCapitalAmountInCents          int      `json:"received_capital_amount_in_cents,omitempty"`
-	RecruiterID                           string   `json:"recruiter_id,omitempty"`
-	Recruiter                             *Person  `json:"recruited,omitempty"`
-	RecruitsCount                         int      `json:"recruits_count,omitempty"`
-	RegisteredAddress                     *Address `json:"registered_address,omitempty"`
-	RegisteredAt                          *Date    `json:"registered_at,omitempty"`
-	Religion                              string   `json:"religion,omitempty"`
-	RncID                                 string   `json:"rnc_id,omitempty"`
-	RncRegID                              string   `json:"rnc_regid,omitempty"`
-	RuleViolationsCount                   int      `json:"rule_violations_count,omitempty"`
-	SalesforceID                          string   `json:"salesforce_id,omitempty"`
-	SchoolDistrict                        string   `json:"school_district,omitempty"`
-	SchoolSubDistrict                     string   `json:"school_sub_district,omitempty"`
-	Sex                                   string   `json:"sex,omitempty"`
-	SignupType                            int      `json:"signup_type,omitempty"`
-	SpentCapitalAmountInCents             int      `json:"spent_capital_amount_in_cents,omitempty"`
-	StateFileID                           string   `json:"state_file_id,omitempty"`
-	StateLowerDistrict                    string   `json:"state_lower_district,omitempty"`
-	StateUpperDistrict                    string   `json:"state_upper_district,omitempty"`
-	SubmittedAddress                      *Address `json:"submitted_address,omitempty"`
-	SubNations                            []string `json:"subnations,omitempty"`
-	Suffix                                string   `json:"suffix,omitempty"`
-	SupportLevelChangedAt                 string   `json:"support_level_changed_at,omitempty"`
-	SupportLevel                          int      `json:"support_level,omitempty"`
-	SupportProbabilityScore               float32  `json:"support_probability_score,omitempty"`
-	SupraNationalDistrict                 string   `json:"supranational_district,omitempty"`
-	Tags                                  []string `json:"tags,omitempty"`
-	TurnoutProbabilityScore               float32  `json:"turnout_probability_score,omitempty"`
-	TwitterAddress                        *Address `json:"twitter_address,omitempty"`
-	TwitterDescription                    string   `json:"twitter_description,omitempty"`
-	TwitterFollowersCount                 int      `json:"twitter_followers_count,omitempty"`
-	TwitterFriendsCount                   int      `json:"twitter_friends_count,omitempty"`
-	TwitterID                             string   `json:"twitter_id,omitempty"`
-	TwitterLocation                       string   `json:"twitter_location,omitempty"`
-	TwitterLogin                          string   `json:"twitter_login,omitempty"`
-	TwitterName                           string   `json:"twitter_name,omitempty"`
-	TwitterUpdatedAt                      *Date    `json:"twitter_updated_at,omitempty"`
-	TwitterWebsite                        string   `json:"twitter_website,omitempty"`
-	UnsubscribedAt                        *Date    `json:"unsubscribed_at,omitempty"`
-	UpdatedAt                             *Date    `json:"updated_at,omitempty"`
-	UserSubmittedAddress                  *Address `json:"user_submitted_address,omitempty"`
-	UserName                              string   `json:"username,omitempty"`
-	VanID                                 string   `json:"van_id,omitempty"`
-	VillageDistrict                       string   `json:"village_district,omitempty"`
-	WarningsCount                         int      `json:"warnings_count,omitempty"`
-	Website                               string   `json:"website,omitempty"`
-	WorkAddress                           *Address `json:"work_address,omitempty"`
-	WorkPhoneNumber                       string   `json:"work_phone_number,omitempty"`
+	//NbecPrecinctCode                      int      `json:"nbec_precinct_code,omitempty"` //TODO unclear on whether this is an integer or string
+	NgpID                            string   `json:"ngp_id,omitempty"`
+	NoteUpdatedAt                    string   `json:"note_updated_at,omitempty"`
+	Note                             string   `json:"note,omitempty"`
+	Occupation                       string   `json:"note,omitempty"`
+	OutstandingInvoicesAmountInCents int      `json:"outstanding_invoices_amount_in_cents,omitempty"`
+	OutstandingInvoicesCount         int      `json:"outstanding_invoices_count,omitempty"`
+	OverdueInvoicesCount             int      `json:"overdue_invoices_count,omitempty"`
+	PageSlug                         string   `json:"page_slug,omitempty"`
+	ParentID                         int      `json:"parent_id,omitempty"`
+	Parent                           *Person  `json:"parent,omitempty"`
+	PartyMember                      bool     `json:"party_member,omitempty"`
+	Party                            string   `json:"party,omitempty"`
+	PfStratID                        int      `json:"pf_strat_id,omitempty"`
+	PhoneNormalised                  string   `json:"phone_normalized,omitempty"`
+	PhoneTime                        string   `json:"phone_time,omitempty"`
+	Phone                            string   `json:"phone,omitempty"`
+	PrecinctCode                     string   `json:"precinct_code,omitempty"`
+	PrecinctID                       int      `json:"precinct_id,omitempty"`
+	PrecintName                      string   `json:"precinct_name,omitempty"`
+	Prefix                           string   `json:"prefix,omitempty"`
+	PreviousParty                    string   `json:"previous_party,omitempty"`
+	PrimaryAddress                   *Address `json:"primary_address,omitempty"`
+	PrimaryEmailID                   int      `json:"primary_email_id,omitempty"`
+	PriorityLevelChangedAt           string   `json:"priority_level_changed_at,omitempty"`
+	PriorityLevel                    int      `json:"priority_level,omitempty"`
+	ProfileContentHTML               string   `json:"profile_content_html,omitempty"`
+	ProfileContent                   string   `json:"profile_content,omitempty"`
+	ProfileHeadline                  string   `json:"profile_headline,omitempty"`
+	ProfileImageURLSSL               string   `json:"profile_image_url_ssl,omitempty"`
+	ReceivedCapitalAmountInCents     int      `json:"received_capital_amount_in_cents,omitempty"`
+	RecruiterID                      int      `json:"recruiter_id,omitempty"`
+	Recruiter                        *Person  `json:"recruited,omitempty"`
+	RecruitsCount                    int      `json:"recruits_count,omitempty"`
+	RegisteredAddress                *Address `json:"registered_address,omitempty"`
+	RegisteredAt                     *Date    `json:"registered_at,omitempty"`
+	Religion                         string   `json:"religion,omitempty"`
+	RncID                            int      `json:"rnc_id,omitempty"`
+	RncRegID                         string   `json:"rnc_regid,omitempty"`
+	RuleViolationsCount              int      `json:"rule_violations_count,omitempty"`
+	SalesforceID                     string   `json:"salesforce_id,omitempty"`
+	SchoolDistrict                   string   `json:"school_district,omitempty"`
+	SchoolSubDistrict                string   `json:"school_sub_district,omitempty"`
+	Sex                              string   `json:"sex,omitempty"`
+	SignupType                       int      `json:"signup_type,omitempty"`
+	SpentCapitalAmountInCents        int      `json:"spent_capital_amount_in_cents,omitempty"`
+	StateFileID                      string   `json:"state_file_id,omitempty"`
+	StateLowerDistrict               string   `json:"state_lower_district,omitempty"`
+	StateUpperDistrict               string   `json:"state_upper_district,omitempty"`
+	SubmittedAddress                 string   `json:"submitted_address,omitempty"`
+	SubNations                       []string `json:"subnations,omitempty"`
+	Suffix                           string   `json:"suffix,omitempty"`
+	SupportLevelChangedAt            string   `json:"support_level_changed_at,omitempty"`
+	SupportLevel                     int      `json:"support_level,omitempty"`
+	SupportProbabilityScore          float32  `json:"support_probability_score,omitempty"`
+	SupraNationalDistrict            string   `json:"supranational_district,omitempty"`
+	Tags                             []string `json:"tags,omitempty"`
+	TurnoutProbabilityScore          float32  `json:"turnout_probability_score,omitempty"`
+	TwitterDescription               string   `json:"twitter_description,omitempty"`
+	TwitterFollowersCount            int      `json:"twitter_followers_count,omitempty"`
+	TwitterFriendsCount              int      `json:"twitter_friends_count,omitempty"`
+	TwitterID                        string   `json:"twitter_id,omitempty"`
+	TwitterLocation                  string   `json:"twitter_location,omitempty"`
+	TwitterLogin                     string   `json:"twitter_login,omitempty"`
+	TwitterName                      string   `json:"twitter_name,omitempty"`
+	TwitterUpdatedAt                 *Date    `json:"twitter_updated_at,omitempty"`
+	TwitterWebsite                   string   `json:"twitter_website,omitempty"`
+	UnsubscribedAt                   *Date    `json:"unsubscribed_at,omitempty"`
+	UpdatedAt                        *Date    `json:"updated_at,omitempty"`
+	UserSubmittedAddress             *Address `json:"user_submitted_address,omitempty"`
+	UserName                         string   `json:"username,omitempty"`
+	VanID                            string   `json:"van_id,omitempty"`
+	VillageDistrict                  string   `json:"village_district,omitempty"`
+	WarningsCount                    int      `json:"warnings_count,omitempty"`
+	Website                          string   `json:"website,omitempty"`
+	WorkAddress                      *Address `json:"work_address,omitempty"`
+	WorkPhoneNumber                  string   `json:"work_phone_number,omitempty"`
 }
+
+//TwitterAddress                        *Address `json:"twitter_address,omitempty"` // TODO determine the actual type returned
 
 func (p *Person) String() string {
 	return fmt.Sprintf("Person ID: %d, Name: %s %s", p.ID, p.FirstName, p.LastName)
