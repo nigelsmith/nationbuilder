@@ -37,9 +37,13 @@ func getOptionsforURL(pageURL string) (*Options, error) {
 	}
 	q := u.Query()
 
-	limit, err := strconv.Atoi(q.Get("limit"))
-	if err != nil {
-		return nil, err
+	var limit int
+	l := q.Get("limit")
+	if l != "" {
+		limit, err = strconv.Atoi(l)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &Options{

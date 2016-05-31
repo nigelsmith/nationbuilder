@@ -35,14 +35,9 @@ func (o *Options) setQuery(u *url.URL) {
 		}
 	}
 
-	var limit int
-	if o.Limit == 0 {
-		limit = defaultLimit
-	} else {
-		limit = o.Limit
+	if o.Limit != 0 {
+		q.Set("limit", strconv.Itoa(o.Limit))
 	}
-
-	q.Set("limit", strconv.Itoa(limit))
 
 	if o.PageToken != "" && o.PageNonce != "" {
 		q.Set("__token", o.PageToken)

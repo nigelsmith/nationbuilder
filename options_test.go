@@ -36,7 +36,7 @@ func TestSetQuery(t *testing.T) {
 	o.SetQueryOption(testQueryParam, testQueryValue)
 	o.setQuery(u)
 
-	expectedURL := testURL + "?limit=50&" + testQueryParam + "=" + testQueryValue
+	expectedURL := testURL + "?" + testQueryParam + "=" + testQueryValue
 	if u.String() != expectedURL {
 		t.Errorf("Expected SetQuery to make url %s but saw %s", expectedURL, u.String())
 	}
